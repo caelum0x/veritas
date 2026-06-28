@@ -1,0 +1,42 @@
+{
+  "name": "veritas-platform",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "api": "tsx apps/api/src/main.ts",
+    "worker": "tsx apps/worker/src/main.ts",
+    "agent": "tsx apps/cap-agent/src/main.ts",
+    "admin": "tsx apps/admin-api/src/main.ts",
+    "graphql": "tsx apps/graphql/src/main.ts",
+    "cli": "tsx apps/cli/src/main.ts",
+    "scheduler": "tsx apps/scheduler-app/src/main.ts",
+    "bff": "tsx apps/bff/src/main.ts",
+    "public-api": "tsx apps/public-api/src/main.ts",
+    "orchestrator": "tsx apps/agent-orchestrator/src/main.ts",
+    "metrics": "tsx apps/metrics-exporter/src/main.ts",
+    "webhook-gateway": "tsx apps/webhook-gateway/src/main.ts",
+    "attestation-publisher": "tsx apps/attestation-publisher/src/main.ts",
+    "ingestion-worker": "tsx apps/ingestion-worker/src/main.ts",
+    "plugin-host": "tsx apps/plugin-host/src/main.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.106.0",
+    "@croo-network/sdk": "^0.2.1",
+    "zod": "^3.23.8",
+    "express": "^4.19.2",
+    "pino": "^9.3.2",
+    "nanoid": "^5.0.7",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "tsx": "^4.16.2",
+    "@types/node": "^20.14.0",
+    "@types/express": "^4.17.21"
+  }
+}
