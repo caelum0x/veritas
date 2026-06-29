@@ -13,6 +13,7 @@
     "api": "tsx apps/api/src/main.ts",
     "worker": "tsx apps/worker/src/main.ts",
     "agent": "tsx apps/cap-agent/src/main.ts",
+    "provider:live": "tsx examples/src/croo-live-provider.ts",
     "admin": "tsx apps/admin-api/src/main.ts",
     "graphql": "tsx apps/graphql/src/main.ts",
     "cli": "tsx apps/cli/src/main.ts",

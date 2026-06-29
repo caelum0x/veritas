@@ -136,22 +136,31 @@ data source ever enters the production verification path.**
 
 ---
 
-## CAP integration (where it lives)
+## CAP integration
 
-The CAP provider is a long-running agent, not a serverless function:
+There are two providers in this repo:
 
-| Piece | Location | Role |
-| --- | --- | --- |
-| Provider entrypoint | `apps/cap-agent/` | boot, supervise, health, graceful shutdown |
-| CAP provider runtime | `packages/cap/` | client, `event-router`, `lifecycle/`, `negotiation-policy`, `delivery-builder`, `settlement` |
-| A2A bridge | `packages/a2a-protocol/cap-bridge.ts` | translate A2A task ⇄ CAP negotiation |
-| Verification engine | `packages/verification/` + `@veritas/container` | stages, domain-verifier router, report assembly |
-| SDK | `@croo-network/sdk` (`^0.2.1`) | CAP network client dependency |
+| Provider | File | Uses | Purpose |
+| --- | --- | --- | --- |
+| **Live (real CROO)** | `examples/src/croo-live-provider.ts` (`npm run provider:live`) | the real **`@croo-network/sdk`** `AgentClient` | connects to `api.croo.network`, accepts negotiations, delivers reports the marketplace settles on-chain |
+| Local simulation | `apps/cap-agent/` + `packages/cap/` | custom in-process CAP model + `MockProvider` | offline lifecycle modelling / tests — **does not** touch the real network |
 
-CAP lifecycle operations the provider implements: **validate & accept/reject** a
-negotiation (`packages/cap/lifecycle`, `negotiation-policy.ts`), **run verification on
-`OrderPaid`**, **deliver** the report with a content hash (`delivery-builder.ts`), and
-**record on-chain settlement** (`settlement.ts`). Chain: Base (`8453`); settlement in USDC.
+The **live provider** authenticates with a CROO **SDK-Key** (`CROO_API_KEY`) and drives the
+real CAP lifecycle (verified connecting to the live WebSocket event stream):
+
+| SDK method (`@croo-network/sdk`) | When |
+| --- | --- |
+| `new AgentClient({ baseURL, wsURL }, sdkKey)` | construct the runtime client |
+| `connectWebSocket()` → `EventStream.on(EventType.*)` | subscribe to `order_negotiation_created`, `order_paid`, … |
+| `getNegotiation(id)` | load `requirements` to validate at negotiation time |
+| `acceptNegotiation(id)` / `rejectNegotiation(id, reason)` | accept valid jobs (backend creates the on-chain order) or reject pre-escrow |
+| `getOrder(id)` | resolve the paid order |
+| `deliverOrder(id, { deliverableType: "schema", deliverableSchema })` | deliver the `veritas.report.v1`; marketplace settles USDC on Base |
+| `rejectOrder(id, reason)` | release escrow if verification can't complete |
+
+Verification runs through the real engine (`runVerification` + `@veritas/container`'s
+`ENGINE_OPTIONS`: real Anthropic provider + the wired domain verifiers and live data
+sources). Chain: Base (`8453`); settlement in USDC, handled by the marketplace.
 
 ---
 
@@ -184,8 +193,15 @@ only enable keyed domains or raise rate limits — the keyless domains work with
 ### Run the CAP provider
 
 ```bash
-npm run agent      # apps/cap-agent — connects to CROO, accepts jobs, settles deliveries
+npm run provider:live   # examples/src/croo-live-provider.ts — real @croo-network/sdk:
+                        # connects to api.croo.network, accepts jobs, delivers reports
+
+npm run agent           # apps/cap-agent — local simulation (offline, no real network)
 ```
+
+`provider:live` needs `CROO_API_KEY` (your CROO SDK-Key) and `ANTHROPIC_API_KEY`; the
+`CROO_*` placeholders in `.env.example` satisfy config validation. List a service on the
+CROO Agent Store first so the agent has something to receive orders against.
 
 ### Quality gates
 
@@ -238,10 +254,10 @@ This BUIDL targets all five CROO submission requirements — see **[SUBMISSION.m
 for the DoraHacks fields and CROO Agent Store listing copy.
 
 - [x] **Open source** — public GitHub repo, MIT ([LICENSE](./LICENSE))
-- [x] **Integrated with CAP** — `apps/cap-agent` + `packages/cap`, `@croo-network/sdk`, USDC settlement on Base
 - [x] **README + setup** — this file (setup, SDK/integration notes, architecture)
-- [ ] **Listed on CROO Agent Store** — _add listing link_
-- [ ] **Demo video (≤5 min)** — _add link_ + file the BUIDL on DoraHacks
+- [~] **Integrated with CAP** — real `@croo-network/sdk` provider (`examples/src/croo-live-provider.ts`); SDK-Key auth + live WebSocket **verified connecting**. Goes fully live once a service is listed and the provider is hosted.
+- [ ] **Listed on CROO Agent Store** — register a service, then _add listing link_
+- [ ] **Demo video (≤5 min)** — record the live hire→pay→deliver flow, _add link_, file the BUIDL on DoraHacks
 
 ---
 
