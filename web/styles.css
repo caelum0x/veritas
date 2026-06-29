@@ -98,7 +98,8 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px);
 .meta code { color: var(--accent); }
 
 /* video */
-.video { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+.video { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #000; }
+.video video { display: block; width: 100%; aspect-ratio: 16/9; background: #000; }
 .video-ph { display: grid; place-items: center; aspect-ratio: 16/9; color: var(--muted); font-size: 15px; background: repeating-linear-gradient(45deg, #0d1118, #0d1118 12px, #0f141c 12px, #0f141c 24px); }
 .video-ph:hover { color: var(--accent); }
 

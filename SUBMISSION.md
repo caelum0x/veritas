@@ -96,6 +96,27 @@ Verification only runs after payment; malformed requests are rejected pre-escrow
 
 ---
 
+## Media for the DoraHacks gallery
+
+Live site: https://veritas-showcase-arhansubas-projects.vercel.app · all assets in `media/`:
+
+| File | Use |
+| --- | --- |
+| `media/showcase-hero.png` | hero / cover image |
+| `media/showcase-full.png` | full-page screenshot |
+| `media/showcase-walkthrough.mp4` | site walkthrough video |
+| `media/gallery-how.png` | "How a job runs" (CAP lifecycle) |
+| `media/gallery-sources.png` | live data sources grid |
+| `media/gallery-cap.png` | CAP integration |
+| `media/gallery-demo.png` | demo section |
+| `media/mobile-hero.png` · `media/mobile-full.png` | mobile views |
+
+> The site walkthrough is a product showcase, **not** the agent demo. The required
+> ≤5-min demo video (hire → pay USDC → verified report → on-chain settle) is recorded
+> once the agent is deployed and listed.
+
+---
+
 ## Notes for reviewers / human spot-check
 
 - Run `npm run typecheck` (0 errors across packages + all 31 apps) and `npm test`
