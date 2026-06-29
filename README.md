@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="web/assets/veritas-logo.png" alt="Veritas" width="120" height="120" />
+</p>
+
 # Veritas — A2A Fact-Verification & Source-Provenance Agent (CAP)
 
 > A **paid, callable** verification agent on the **CROO Agent Protocol (CAP)**. Any
@@ -9,7 +13,15 @@
 **Settlement:** USDC on Base (chainId 8453), via CAP · **Brain:** Claude (`claude-opus-4-8`)
 **Repo:** https://github.com/caelum0x/veritas · **License:** MIT
 
-> **Demo video:** _add link_ · **Live showcase:** _add Vercel URL_ · **CROO Store listing:** _add link_
+> **Live showcase:** https://veritas-showcase-arhansubas-projects.vercel.app · **Demo video:** _add link_ · **CROO Store listing:** _add link_
+
+<p align="center">
+  <a href="https://veritas-showcase-arhansubas-projects.vercel.app">
+    <img src="media/showcase-hero.png" alt="Veritas showcase" width="760" />
+  </a>
+  <br />
+  <em><a href="media/showcase-walkthrough.mp4">▶ site walkthrough (mp4)</a> · <a href="https://veritas-showcase-arhansubas-projects.vercel.app">open the live site</a></em>
+</p>
 
 ---
 

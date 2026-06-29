@@ -56,7 +56,7 @@ Fill the `‹…›` placeholders before submitting.
 
 **Demo video (≤5 min):** ‹URL›
 
-**Live showcase:** ‹Vercel URL› · **CROO Store listing:** ‹URL›
+**Live showcase:** https://veritas-showcase-arhansubas-projects.vercel.app · **CROO Store listing:** ‹URL›
 
 **Wallet / agent id:** ‹CROO_AGENT_ID / on-chain address›
 
