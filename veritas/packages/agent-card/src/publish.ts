@@ -1,7 +1,7 @@
 // Publish an AgentCard to a registry — HTTP POST with retry and typed error handling.
 
 import { ok, err, type Result, withRetry, DEFAULT_RETRY } from "@veritas/core";
-import { type AgentCard } from "./builder.js";
+import { type BuilderAgentCard } from "./builder.js";
 import { CardPublishError, CardRegistryUnavailableError } from "./errors.js";
 import { type PublishTarget, type RegistryKind } from "./types.js";
 
@@ -47,7 +47,7 @@ export const fetchCardRegistry: CardRegistryPort = {
 
 /** Publish `card` to the given `target`, returning a receipt on success. */
 export async function publishCard(
-  card: AgentCard,
+  card: BuilderAgentCard,
   target: PublishTarget,
   registry: CardRegistryPort = fetchCardRegistry,
 ): Promise<Result<PublishReceipt, CardPublishError | CardRegistryUnavailableError>> {

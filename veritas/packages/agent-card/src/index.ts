@@ -9,7 +9,7 @@ export * from "./card.js";
 export {
   AgentCardBuilder,
   agentCardBuilder,
-  type AgentCard as BuilderAgentCard,
+  type BuilderAgentCard,
 } from "./builder.js";
 export * from "./publish.js";
 export * from "./errors.js";

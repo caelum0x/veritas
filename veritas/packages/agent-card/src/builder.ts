@@ -20,7 +20,7 @@ import {
 } from "./types.js";
 import { CardValidationError } from "./errors.js";
 
-const AgentCardSchema = z.object({
+const BuilderAgentCardSchema = z.object({
   /** Unique identifier for the agent, e.g. "veritas.fact-checker". */
   id: z.string().min(1),
   /** Human-readable display name. */
@@ -43,7 +43,9 @@ const AgentCardSchema = z.object({
   updatedAt: z.string().optional(),
 });
 
-export type AgentCard = z.infer<typeof AgentCardSchema>;
+// Distinct from card.ts's published AgentCard: this is the builder-produced
+// card (protocolVersion/maturity/runtime/pricing), exported as BuilderAgentCard.
+export type BuilderAgentCard = z.infer<typeof BuilderAgentCardSchema>;
 
 interface BuilderState {
   id?: string;
@@ -132,14 +134,14 @@ export class AgentCardBuilder {
     });
   }
 
-  /** Validate accumulated state and return a `Result<AgentCard>`. */
-  build(): Result<AgentCard, CardValidationError> {
+  /** Validate accumulated state and return a `Result<BuilderAgentCard>`. */
+  build(): Result<BuilderAgentCard, CardValidationError> {
     const raw = {
       ...this.state,
       updatedAt: new Date().toISOString(),
     };
 
-    const parsed = AgentCardSchema.safeParse(raw);
+    const parsed = BuilderAgentCardSchema.safeParse(raw);
     if (!parsed.success) {
       const msg = parsed.error.issues.map((i) => i.message).join("; ");
       return err(new CardValidationError(`Invalid agent card: ${msg}`));
