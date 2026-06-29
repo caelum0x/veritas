@@ -53,13 +53,13 @@ export {
 } from "./types.js";
 
 export type { OutletRegistryPort } from "./sources/outlet-registry.js";
-export { MockOutletRegistryDataSource } from "./sources/outlet-registry.js";
+export { MockOutletRegistryDataSource, OutletRegistryDataSource, createOutletRegistrySource } from "./sources/outlet-registry.js";
 
 export type { CrossSourcePort } from "./sources/cross-source.js";
-export { MockCrossSourceDataSource } from "./sources/cross-source.js";
+export { MockCrossSourceDataSource, CrossSourceDataSource, createCrossSource } from "./sources/cross-source.js";
 
 export type { RecencyPort } from "./sources/recency.js";
-export { MockRecencyDataSource } from "./sources/recency.js";
+export { MockRecencyDataSource, RecencyDataSource, createRecencySource } from "./sources/recency.js";
 
 export type { WireDataSourcePort } from "./sources/wire.js";
-export { MockWireDataSource } from "./sources/wire.js";
+export { MockWireDataSource, WireDataSource, createWireSource } from "./sources/wire.js";

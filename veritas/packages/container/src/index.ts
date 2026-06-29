@@ -62,6 +62,11 @@ export {
   LLM_REGISTRY,
   ENGINE_OPTIONS,
   VERIFICATION_CONFIG,
+  INPUT_GUARD,
+  CONFIDENCE_CALIBRATOR,
+  CITATION_REFINER,
+  DOMAIN_VERIFIER_ROUTER,
+  EVIDENCE_GRAPH_SVC,
   CAP_PROVIDER,
   CAP_CONFIG,
 } from "./tokens.js";
@@ -86,6 +91,10 @@ export { token } from "./types.js";
 export { registerPersistence } from "./modules/persistence.module.js";
 export { registerServices } from "./modules/services.module.js";
 export { registerVerificationModule } from "./modules/verification.module.js";
+export { registerVerificationQualityModule } from "./modules/verification-quality.module.js";
+export { registerDomainVerifiersModule } from "./modules/domain-verifiers.module.js";
+export { registerFactGraphModule } from "./modules/fact-graph.module.js";
+export type { EvidenceGraphService } from "./modules/fact-graph.module.js";
 export { registerCapModule } from "./modules/cap.module.js";
 export { registerBillingModule } from "./modules/billing.module.js";
 export { registerWebhooksModule } from "./modules/webhooks.module.js";

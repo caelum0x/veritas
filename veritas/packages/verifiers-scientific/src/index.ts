@@ -93,3 +93,11 @@ export { MockRetractionDataSource as MockRetractionSource, createRetractionSourc
 
 export type { ArxivDataSourcePort as ArxivPort, ArxivPaperMetadata as ArxivPaper } from "./sources/arxiv.js";
 export { MockArxivDataSource as MockArxivSource, createArxivSource as createMockArxivSource } from "./sources/arxiv.js";
+
+// Real, network-backed data source adapters (no mocks). `create*Source()` returns
+// the live adapter; pass `mock: true` only in tests.
+export { CrossrefDataSource, createCrossrefSource } from "./sources/crossref.js";
+export { ArxivDataSource, createArxivSource } from "./sources/arxiv.js";
+export { PubMedDataSource, createPubMedSource } from "./sources/pubmed.js";
+export { RetractionDataSource, createRetractionSource } from "./sources/retraction.js";
+export { DoiDataSource, createDoiSource } from "./sources/doi.js";

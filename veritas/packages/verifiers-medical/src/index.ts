@@ -63,8 +63,12 @@ export {
 
 export { canHandleMedicalClaim, extractDrugNames, medicalRelevanceScore } from "./matcher.js";
 
-export type { DrugDbPort } from "./sources/drug-db.js";
+export type { DrugDbPort, DrugRecord } from "./sources/drug-db.js";
 export { MockDrugDb } from "./sources/drug-db.js";
+
+// Real, network-backed drug source (openFDA, keyless).
+export { OpenFdaDrugSource, createOpenFdaDrugSource } from "./sources/openfda-drug.js";
+export type { OpenFdaDrugSourceOptions } from "./sources/openfda-drug.js";
 
 export type { GuidelinesPort } from "./sources/guidelines.js";
 export { MockGuidelinesSource } from "./sources/guidelines.js";

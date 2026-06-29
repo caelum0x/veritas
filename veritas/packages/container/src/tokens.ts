@@ -131,12 +131,24 @@ export const QUOTA_SVC              = token<QuotaService>("QuotaService");
 
 // ── Verification engine ────────────────────────────────────────────────────────
 import type { VerifierLLM, ProviderRegistry } from "@veritas/llm";
-import type { EngineOptions } from "@veritas/verification";
+import type {
+  EngineOptions,
+  InputGuard,
+  ConfidenceCalibrator,
+  CitationRefiner,
+  DomainVerifierRouter,
+} from "@veritas/verification";
 import type { CapProviderConfig } from "@veritas/cap";
 export const LLM_PROVIDER         = token<VerifierLLM>("VerifierLLM");
 export const LLM_REGISTRY         = token<ProviderRegistry>("ProviderRegistry");
 export const ENGINE_OPTIONS       = token<EngineOptions>("EngineOptions");
 export const VERIFICATION_CONFIG  = token<Record<string, unknown>>("VerificationConfig");
+export const INPUT_GUARD            = token<InputGuard>("InputGuard");
+export const CONFIDENCE_CALIBRATOR  = token<ConfidenceCalibrator>("ConfidenceCalibrator");
+export const CITATION_REFINER       = token<CitationRefiner>("CitationRefiner");
+export const DOMAIN_VERIFIER_ROUTER = token<DomainVerifierRouter>("DomainVerifierRouter");
+import type { EvidenceGraphService } from "./modules/fact-graph.module.js";
+export const EVIDENCE_GRAPH_SVC     = token<EvidenceGraphService>("EvidenceGraphService");
 export const CAP_PROVIDER         = token<unknown>("CapProvider");
 export const CAP_CONFIG           = token<CapProviderConfig>("CapConfig");
 
@@ -205,6 +217,11 @@ export const TOKENS = {
   LlmRegistry:          LLM_REGISTRY,
   EngineOptions:        ENGINE_OPTIONS,
   VerificationConfig:   VERIFICATION_CONFIG,
+  InputGuard:           INPUT_GUARD,
+  ConfidenceCalibrator: CONFIDENCE_CALIBRATOR,
+  CitationRefiner:      CITATION_REFINER,
+  DomainVerifierRouter: DOMAIN_VERIFIER_ROUTER,
+  EvidenceGraphSvc:     EVIDENCE_GRAPH_SVC,
   // CAP
   CapProvider:          CAP_PROVIDER,
   CapConfig:            CAP_CONFIG,

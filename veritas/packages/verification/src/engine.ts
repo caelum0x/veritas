@@ -17,9 +17,15 @@ import type { EngineOptions } from "./engine-options.js";
 import { composePipeline } from "./pipeline/pipeline.js";
 import type { VerificationContext } from "./pipeline/context.js";
 import { makeStage } from "./pipeline/stage.js";
+import { guardInputStage } from "./stages/guard.js";
 import { normalizeStage } from "./stages/normalize.js";
 import { resolveClaimsStage } from "./stages/resolve-claims.js";
 import { dedupeClaimsStage } from "./stages/dedupe-claims.js";
+import { researchStage } from "./stages/research.js";
+import { adjudicateStage } from "./stages/adjudicate.js";
+import { domainVerifyStage } from "./stages/domain-verify.js";
+import { refineCitationsStage } from "./stages/refine-citations.js";
+import { calibrateStage } from "./stages/calibrate.js";
 import { scoreStage } from "./stages/score.js";
 import { assembleStage } from "./stages/assemble.js";
 
@@ -110,9 +116,15 @@ export async function runVerification(
 
   // --- Compose and run pipeline ----------------------------------------------
   const pipeline = composePipeline([
+    wrapThrowingStage("guard-input", guardInputStage),
     wrapThrowingStage("normalize", normalizeStage),
     wrapThrowingStage("resolve-claims", resolveClaimsStage),
     wrapThrowingStage("dedupe-claims", dedupeClaimsStage),
+    wrapThrowingStage("research", researchStage),
+    wrapThrowingStage("adjudicate", adjudicateStage),
+    wrapThrowingStage("domain-verify", domainVerifyStage),
+    wrapThrowingStage("refine-citations", refineCitationsStage),
+    wrapThrowingStage("calibrate", calibrateStage),
     scoreStage,
     assembleStage,
   ]);

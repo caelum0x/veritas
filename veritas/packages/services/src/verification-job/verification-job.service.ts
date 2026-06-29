@@ -15,6 +15,8 @@ import {
 } from "@veritas/core";
 import type { JobRepository } from "@veritas/persistence";
 import { runVerification } from "@veritas/verification";
+import type { EngineOptions } from "@veritas/verification";
+import { MockProvider } from "@veritas/llm";
 import type { ServiceContext } from "../service-context.js";
 import { ResourceNotFoundError, PreconditionFailedError } from "../errors.js";
 import type {
@@ -30,6 +32,12 @@ import { SubmitJobInputSchema, ListJobsInputSchema } from "./verification-job.dt
 export interface VerificationJobServiceDeps {
   readonly jobRepository: JobRepository;
   readonly logger: Logger;
+  /**
+   * Fully-assembled engine options (LLM provider, guardrails, calibrator, …).
+   * When omitted, a safe default using the deterministic MockProvider is built
+   * so the job runner is always functional rather than silently broken.
+   */
+  readonly engineOptions?: EngineOptions;
 }
 
 /** Maps a persisted Job entity to a JobView projection. */
@@ -51,10 +59,13 @@ function toJobView(job: import("@veritas/contracts").Job): JobView {
 export class VerificationJobService {
   private readonly jobs: JobRepository;
   private readonly logger: Logger;
+  private readonly engineOptions: EngineOptions;
 
   constructor(deps: VerificationJobServiceDeps) {
     this.jobs = deps.jobRepository;
     this.logger = deps.logger;
+    this.engineOptions =
+      deps.engineOptions ?? { llm: new MockProvider(), logger: deps.logger };
   }
 
   /**
@@ -213,7 +224,7 @@ export class VerificationJobService {
       return;
     }
 
-    const verResult = await runVerification(request, { logger: this.logger } as unknown as import("@veritas/verification").EngineOptions);
+    const verResult = await runVerification(request, this.engineOptions);
     const finishedAt = epochToIso(Date.now());
 
     if (isOk(verResult)) {

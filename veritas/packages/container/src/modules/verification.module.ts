@@ -2,15 +2,27 @@
 
 import type { Container } from "../container.js";
 import {
+  CONFIG,
   LOGGER,
   LLM_REGISTRY,
   LLM_PROVIDER,
   ENGINE_OPTIONS,
   VERIFICATION_CONFIG,
+  INPUT_GUARD,
+  CONFIDENCE_CALIBRATOR,
+  CITATION_REFINER,
+  DOMAIN_VERIFIER_ROUTER,
 } from "../tokens.js";
-import { FallbackProvider, MockProvider, ProviderRegistry } from "@veritas/llm";
+import { AnthropicProvider, FallbackProvider, MockProvider, ProviderRegistry } from "@veritas/llm";
 import type { VerifierLLM } from "@veritas/llm";
-import type { EngineOptions } from "@veritas/verification";
+import type { AppConfig } from "@veritas/config";
+import type {
+  EngineOptions,
+  InputGuard,
+  ConfidenceCalibrator,
+  CitationRefiner,
+  DomainVerifierRouter,
+} from "@veritas/verification";
 import { noopLogger } from "@veritas/core";
 import type { Logger } from "@veritas/core";
 
@@ -22,11 +34,26 @@ const DEFAULT_CONCURRENCY = 4;
  * Reads optional tuning overrides from TOKENS.VerificationConfig when present.
  */
 export function registerVerificationModule(container: Container): void {
-  // Shared provider registry — consumers may register additional providers at runtime.
-  container.singleton(LLM_REGISTRY, (): ProviderRegistry => {
+  // Shared provider registry. The real Anthropic provider is the default when an
+  // API key is configured; MockProvider is registered only as an explicit
+  // non-default fallback for unconfigured (dev/test) environments.
+  container.singleton(LLM_REGISTRY, (c): ProviderRegistry => {
     const registry = new ProviderRegistry();
-    // MockProvider is always available as a safe fallback in dev/test.
-    registry.register(new MockProvider(), false, true);
+    const config = c.tryResolve<AppConfig>(CONFIG);
+    const apiKey = config?.anthropic?.apiKey;
+
+    if (apiKey && config) {
+      // supportsWebSearch=true (Claude web_search), isDefault=true (production brain).
+      registry.register(new AnthropicProvider(config.anthropic), true, true);
+      c.tryResolve<Logger>(LOGGER)?.info("llm: AnthropicProvider registered as default");
+    } else {
+      c.tryResolve<Logger>(LOGGER)?.warn(
+        "llm: ANTHROPIC_API_KEY not configured — falling back to MockProvider (non-production)",
+      );
+    }
+
+    // Mock is the default only when no real provider is available.
+    registry.register(new MockProvider(), false, !apiKey);
     return registry;
   });
 
@@ -62,6 +89,13 @@ export function registerVerificationModule(container: Container): void {
       }
     }
 
+    // Optional verification-quality seams: present only when the
+    // verification-quality module has been registered. Backward-compatible.
+    const inputGuard = c.tryResolve<InputGuard>(INPUT_GUARD);
+    const calibrator = c.tryResolve<ConfidenceCalibrator>(CONFIDENCE_CALIBRATOR);
+    const citationRefiner = c.tryResolve<CitationRefiner>(CITATION_REFINER);
+    const domainRouter = c.tryResolve<DomainVerifierRouter>(DOMAIN_VERIFIER_ROUTER);
+
     return {
       llm,
       logger,
@@ -70,6 +104,10 @@ export function registerVerificationModule(container: Container): void {
       effort,
       verifier,
       verifierVersion,
+      ...(inputGuard !== undefined ? { inputGuard } : {}),
+      ...(calibrator !== undefined ? { calibrator } : {}),
+      ...(citationRefiner !== undefined ? { citationRefiner } : {}),
+      ...(domainRouter !== undefined ? { domainRouter } : {}),
     };
   });
 }

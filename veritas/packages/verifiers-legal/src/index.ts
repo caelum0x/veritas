@@ -62,8 +62,15 @@ export {
 export type { StatuteSourcePort, StatuteQuery } from "./sources/statute.js";
 export { MockStatuteSource } from "./sources/statute.js";
 
-export type { CaseLawSourcePort, CaseLawQuery } from "./sources/case-law.js";
+export type { CaseLawSourcePort, CaseLawQuery, CaseLawMetadata } from "./sources/case-law.js";
 export { MockCaseLawSource } from "./sources/case-law.js";
+
+// Real, network-backed case-law source (CourtListener, keyless).
+export {
+  CourtListenerCaseLawSource,
+  createCourtListenerCaseLawSource,
+} from "./sources/courtlistener-caselaw.js";
+export type { CourtListenerSourceOptions } from "./sources/courtlistener-caselaw.js";
 
 export type { JurisdictionSourcePort, JurisdictionQuery } from "./sources/jurisdiction.js";
 export { MockJurisdictionSource } from "./sources/jurisdiction.js";

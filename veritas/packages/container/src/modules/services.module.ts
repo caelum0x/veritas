@@ -84,6 +84,7 @@ import {
   AGENT_REGISTRATION_SVC,
   PRICING_SVC,
   QUOTA_SVC,
+  ENGINE_OPTIONS,
 } from "../tokens.js";
 
 /** Local mirror of the private RegistrationMeta shape from agent-registration.service.ts. */
@@ -132,6 +133,7 @@ export function registerServices(c: Container): void {
     new VerificationJobService({
       jobRepository: ctr.resolve(JOB_REPO),
       logger: ctr.resolve(LOGGER),
+      engineOptions: ctr.resolve(ENGINE_OPTIONS),
     }),
   );
 

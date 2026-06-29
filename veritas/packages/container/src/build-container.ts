@@ -4,11 +4,14 @@ import { loadConfig } from "@veritas/config";
 import type { AppConfig } from "@veritas/config";
 import { createLogger } from "@veritas/observability";
 import { MetricsRegistry } from "@veritas/observability";
-import { MockProvider } from "@veritas/llm";
 import { Container } from "./container.js";
-import { CONFIG, LOGGER, METRICS, LLM_PROVIDER } from "./tokens.js";
+import { CONFIG, LOGGER, METRICS } from "./tokens.js";
 import { registerPersistence } from "./modules/persistence.module.js";
 import { registerServices } from "./modules/services.module.js";
+import { registerVerificationQualityModule } from "./modules/verification-quality.module.js";
+import { registerDomainVerifiersModule } from "./modules/domain-verifiers.module.js";
+import { registerFactGraphModule } from "./modules/fact-graph.module.js";
+import { registerVerificationModule } from "./modules/verification.module.js";
 
 export interface BuildContainerOptions {
   /** Pre-loaded config; if omitted, loadConfig() is called. */
@@ -35,9 +38,18 @@ export function buildContainer(opts: BuildContainerOptions = {}): Container {
 
   c.singleton(METRICS, () => new MetricsRegistry());
 
-  // ── LLM provider ────────────────────────────────────────────────────────────
-  // Default to MockProvider in non-production; real deployments override after build.
-  c.singleton(LLM_PROVIDER, () => new MockProvider());
+  // ── Verification quality seams (guardrails + calibration + citations) ────────
+  // Registered before the verification module so ENGINE_OPTIONS can pick them up.
+  registerVerificationQualityModule(c);
+
+  // ── Domain verifiers (specialized, real-source-backed) ───────────────────────
+  registerDomainVerifiersModule(c);
+
+  // ── Evidence graph (projects verification reports into a fact graph) ─────────
+  registerFactGraphModule(c);
+
+  // ── Verification engine (assembles ENGINE_OPTIONS) ───────────────────────────
+  registerVerificationModule(c);
 
   // ── Persistence layer ────────────────────────────────────────────────────────
   registerPersistence(c);

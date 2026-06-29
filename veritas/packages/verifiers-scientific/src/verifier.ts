@@ -47,18 +47,25 @@ export class ScientificVerifier implements SpecializedVerifier {
     const arxivId = extractArxivId(claim.text);
     const keywords = extractSearchKeywords(claim.text);
 
-    const pubmedPort = ctx.sources.get("pubmed")!;
-    const crossrefPort = ctx.sources.get("crossref")!;
-    const arxivPort = ctx.sources.get("arxiv")!;
-    const retractionPort = ctx.sources.get("retraction")!;
-
     const query = { keywords: [...keywords], maxResults: 5 };
 
+    // Sources are optional: an unregistered port yields no documents rather than
+    // crashing, so the verifier degrades gracefully when a data source has not
+    // been configured.
+    const searchSource = (
+      name: string,
+      domain?: string,
+    ): Promise<Result<readonly import("@veritas/verifier-kit").SourceDocument[], Error>> => {
+      const port = ctx.sources.get(name);
+      if (port === undefined) return Promise.resolve(ok([]));
+      return port.search({ ...query, domain });
+    };
+
     const [pubmedResult, crossrefResult, arxivResult, retractionResult] = await Promise.all([
-      pubmedPort.search({ ...query, domain: pmid ?? undefined }),
-      crossrefPort.search({ ...query, domain: doi ?? undefined }),
-      arxivPort.search({ ...query, domain: arxivId ?? undefined }),
-      retractionPort.search(query),
+      searchSource("pubmed", pmid ?? undefined),
+      searchSource("crossref", doi ?? undefined),
+      searchSource("arxiv", arxivId ?? undefined),
+      searchSource("retraction"),
     ]);
 
     const pubmedDocs = isOk(pubmedResult) ? pubmedResult.value : [];

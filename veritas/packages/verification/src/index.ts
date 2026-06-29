@@ -2,7 +2,17 @@
 
 // Engine
 export { runVerification } from "./engine.js";
-export type { EngineOptions } from "./engine-options.js";
+export type { VerificationResult } from "./engine.js";
+export type {
+  EngineOptions,
+  InputGuard,
+  ConfidenceCalibrator,
+  CitationRefiner,
+  CitationLike,
+  GuardDecision,
+  DomainVerifierRouter,
+  DomainVerdict,
+} from "./engine-options.js";
 
 // Pipeline
 export type { Stage } from "./pipeline/stage.js";
@@ -10,11 +20,15 @@ export type { VerificationContext } from "./pipeline/context.js";
 export { composePipeline } from "./pipeline/pipeline.js";
 
 // Stages
+export { guardInputStage } from "./stages/guard.js";
 export { normalizeStage } from "./stages/normalize.js";
 export { resolveClaimsStage } from "./stages/resolve-claims.js";
 export { dedupeClaimsStage } from "./stages/dedupe-claims.js";
 export { researchStage } from "./stages/research.js";
 export { adjudicateStage } from "./stages/adjudicate.js";
+export { domainVerifyStage } from "./stages/domain-verify.js";
+export { refineCitationsStage } from "./stages/refine-citations.js";
+export { calibrateStage } from "./stages/calibrate.js";
 export { scoreStage } from "./stages/score.js";
 export { assembleStage } from "./stages/assemble.js";
 

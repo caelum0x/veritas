@@ -1,5 +1,8 @@
 // Public surface of @veritas/fact-graph: entities, relations, triples, graph, and supporting ops.
 
+export { buildEvidenceGraph } from "./evidence-graph.js";
+export type { EvidenceGraph, EvidenceClaim, EvidenceCitation } from "./evidence-graph.js";
+
 export type { EntityId, EntityType, Entity } from "./entity.js";
 export { EntityTypeSchema, EntitySchema, newEntityId, makeEntity, updateEntity } from "./entity.js";
 

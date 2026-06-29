@@ -36,7 +36,10 @@ export type { ProviderSelectionCriteria } from "./registry.js";
 // Fallback provider
 export { FallbackProvider } from "./fallback-provider.js";
 
-// Mock provider (for local/dev)
+// Real provider — Anthropic Claude with web_search
+export { AnthropicProvider } from "./anthropic/anthropic-provider.js";
+
+// Mock provider (tests / explicit dev fallback only)
 export { MockProvider } from "./mock-provider.js";
 
 // Token accounting
