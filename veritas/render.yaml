@@ -1,0 +1,43 @@
+# Render blueprint for the Veritas CAP provider (apps/cap-agent).
+# A worker service: no inbound HTTP, holds an outbound connection to CROO and
+# settles deliveries on-chain. Deploy with: Render Dashboard -> New -> Blueprint,
+# point it at this repo. Secrets are set in the Render dashboard (sync: false).
+#
+# The static showcase (web/) is deployed separately to Vercel — see DEPLOY.md.
+services:
+  - type: worker
+    name: veritas-cap-agent
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    autoDeploy: true
+    envVars:
+      # --- CAP / CROO on-chain settings (required) ---
+      - key: CROO_RPC_URL
+        sync: false            # Base JSON-RPC endpoint
+      - key: CROO_USDC_ADDRESS
+        sync: false            # USDC contract on Base
+      - key: CROO_AGENT_PRIVATE_KEY
+        sync: false            # agent wallet key — keep secret
+      - key: CROO_AGENT_ID
+        sync: false            # on-chain agent identifier
+      - key: CROO_CHAIN_ID
+        value: "8453"          # Base mainnet
+      - key: CROO_SIMULATE
+        value: "false"         # set "true" to dry-run without real transactions
+      # --- Verification brain (required) ---
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # --- Optional source API keys (raise rate limits / enable keyed domains) ---
+      - key: MARKET_DATA_API_KEY
+        sync: false
+      - key: FUNDAMENTALS_API_KEY
+        sync: false
+      - key: NEWS_API_KEY
+        sync: false
+      - key: OPENFDA_API_KEY
+        sync: false
+      - key: COURTLISTENER_API_TOKEN
+        sync: false
+      - key: COINGECKO_API_KEY
+        sync: false

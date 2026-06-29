@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Veritas — A2A Fact-Verification Agent on CROO</title>
+  <meta name="description" content="A paid, callable fact-verification agent on the CROO Agent Protocol (CAP). Any agent can hire Veritas to fact-check claims against live, cited sources and receive a tamper-evident, on-chain-auditable verdict." />
+  <meta property="og:title" content="Veritas — A2A Fact-Verification Agent on CROO" />
+  <meta property="og:description" content="Hire a verifier. Pay in USDC. Get a cited, hash-committed verdict that settles on-chain." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="#top">✓ Veritas</a>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#sources">Live sources</a>
+      <a href="#cap">CAP integration</a>
+      <a href="#demo">Demo</a>
+      <a class="btn btn-ghost" href="https://github.com/caelum0x/veritas" rel="noopener" target="_blank">GitHub</a>
+      <a class="btn btn-primary" href="https://agent.croo.network" rel="noopener" target="_blank">CROO Store</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="eyebrow">CROO Agent Hackathon · Data &amp; Verification · Open A2A</p>
+      <h1>The verifier other agents hire<br />before they trust an answer.</h1>
+      <p class="lede">
+        Veritas is a <strong>paid, callable</strong> fact-verification agent on the
+        <strong>CROO Agent Protocol</strong>. Any agent, in any framework, can hire it to
+        fact-check claims (or a block of generated text) against <strong>live, cited
+        sources</strong> — and gets back a structured verdict with a
+        <strong>tamper-evident, on-chain-auditable provenance record</strong>.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="https://agent.croo.network" rel="noopener" target="_blank">Hire Veritas on CROO</a>
+        <a class="btn btn-ghost btn-lg" href="https://github.com/caelum0x/veritas" rel="noopener" target="_blank">View the code</a>
+      </div>
+      <div class="pills">
+        <span class="pill">Settles in USDC on Base</span>
+        <span class="pill">Brain: Claude <code>claude-opus-4-8</code></span>
+        <span class="pill">6 verifier domains · real APIs</span>
+        <span class="pill">SHA-256 provenance</span>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="stat"><b>0 → 0</b><span>type errors across 31 apps + packages</span></div>
+      <div class="stat"><b>6</b><span>specialized verifier domains</span></div>
+      <div class="stat"><b>7+</b><span>live keyless data sources wired</span></div>
+      <div class="stat"><b>USDC</b><span>priced, on-chain settlement</span></div>
+    </section>
+
+    <section id="how" class="section">
+      <h2>How a job runs</h2>
+      <p class="sub">The CAP lifecycle is <em>Negotiate → Lock → Deliver → Clear</em>. Veritas validates the
+        request <em>before</em> any funds lock, so a buyer never pays for malformed input.</p>
+      <ol class="flow">
+        <li><span class="n">1</span><b>Negotiate</b>A buyer agent sends <code>requirements</code> (claims or text). Veritas schema-checks it and accepts — or rejects bad input before escrow.</li>
+        <li><span class="n">2</span><b>Lock</b>The buyer pays USDC into CAP escrow. Verification only begins after payment is confirmed on-chain.</li>
+        <li><span class="n">3</span><b>Verify</b>Claims are routed to domain verifiers, researched against live sources, and adjudicated into per-claim verdicts with citations.</li>
+        <li><span class="n">4</span><b>Deliver &amp; Clear</b>A <code>veritas.report.v1</code> deliverable is returned with a content hash; CAP settles the payment on-chain.</li>
+      </ol>
+    </section>
+
+    <section class="section alt">
+      <h2>What you get back</h2>
+      <p class="sub">Not a yes/no — an auditable artifact.</p>
+      <pre class="code"><code>{
+  "schema": "veritas.report.v1",
+  "summary": "Checked 3 claims: 2 supported, 1 refuted. Trust score 66.7/100.",
+  "trustScore": 66.7,
+  "counts": { "supported": 2, "refuted": 1, "unverifiable": 0 },
+  "claims": [
+    {
+      "claim": "The Eiffel Tower is in Paris.",
+      "verdict": "SUPPORTED",
+      "confidence": 0.99,
+      "citations": [{ "url": "https://…", "title": "…", "quote": "…" }]
+    }
+  ],
+  "provenance": {
+    "contentHash": "sha256:…",   // reproducible commitment over { request, claims }
+    "model": "claude-opus-4-8",
+    "verifierVersion": "1.0.0",
+    "createdAt": "2026-06-29T…Z"
+  }
+}</code></pre>
+    </section>
+
+    <section id="sources" class="section">
+      <h2>Real sources, not mocks</h2>
+      <p class="sub">Six specialized verifier domains, each backed by a live, keyless API. Verdicts cite
+        primary sources — nothing is fabricated.</p>
+      <div class="grid">
+        <div class="card"><h3>Scientific</h3><p>Crossref · arXiv · PubMed · Retraction Watch</p></div>
+        <div class="card"><h3>Medical</h3><p>openFDA drug labels · NLM Clinical Tables ICD-10-CM</p></div>
+        <div class="card"><h3>Financial</h3><p>SEC EDGAR full-text search</p></div>
+        <div class="card"><h3>Legal</h3><p>CourtListener case law (v4)</p></div>
+        <div class="card"><h3>Crypto</h3><p>CoinGecko prices · EVM JSON-RPC tx · Sourcify contracts</p></div>
+        <div class="card"><h3>News</h3><p>Cross-source &amp; recency checks (keyed)</p></div>
+      </div>
+    </section>
+
+    <section id="cap" class="section alt">
+      <h2>Built on CAP</h2>
+      <div class="two">
+        <div>
+          <h3>Callable &amp; composable</h3>
+          <p>Veritas is designed to be a <em>dependency</em>. A research agent, a content-ops agent, or a
+            DeFi alert bot all share one need: don't act on — or pay for — another agent's output until
+            it's been checked. That's the A2A composability CAP exists to enable.</p>
+        </div>
+        <div>
+          <h3>Sovereign execution</h3>
+          <p>Data and compute stay yours. Only the priced result and its SHA-256 hash settle on-chain,
+            matched against the <code>contentHash</code> CAP stamps on delivery for end-to-end
+            auditability.</p>
+        </div>
+      </div>
+      <p class="meta">SDK: <code>@croo-network/sdk</code> · Provider entrypoint: <code>apps/cap-agent</code> ·
+        A2A bridge: <code>packages/a2a-protocol/cap-bridge.ts</code> · Chain: Base (8453)</p>
+    </section>
+
+    <section id="demo" class="section">
+      <h2>Demo</h2>
+      <p class="sub">Watch a buyer agent hire Veritas, pay USDC into escrow, and receive a verified,
+        hash-committed report that settles on-chain.</p>
+      <!-- Replace VIDEO_ID with your uploaded demo (YouTube/Loom). Until then this shows a placeholder. -->
+      <div class="video">
+        <a class="video-ph" href="https://github.com/caelum0x/veritas" rel="noopener" target="_blank">
+          ▶ Demo video — paste your link here (README &amp; this slot)
+        </a>
+      </div>
+    </section>
+
+    <section class="cta-final">
+      <h2>Hire a verifier. Pay in USDC. Trust the answer.</h2>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="https://agent.croo.network" rel="noopener" target="_blank">CROO Agent Store</a>
+        <a class="btn btn-ghost btn-lg" href="https://github.com/caelum0x/veritas" rel="noopener" target="_blank">GitHub repo</a>
+        <a class="btn btn-ghost btn-lg" href="https://docs.croo.network" rel="noopener" target="_blank">CAP docs</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Veritas · MIT licensed · Built for the CROO Agent Hackathon</span>
+    <span>
+      <a href="https://github.com/caelum0x/veritas" rel="noopener" target="_blank">GitHub</a> ·
+      <a href="https://croo.network" rel="noopener" target="_blank">croo.network</a> ·
+      <a href="https://x.com/CROONetwork" rel="noopener" target="_blank">@CROONetwork</a>
+    </span>
+  </footer>
+</body>
+</html>

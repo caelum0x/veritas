@@ -1,78 +1,80 @@
 # Veritas — A2A Fact-Verification & Source-Provenance Agent (CAP)
 
-> A paid, callable verification agent on the **CROO Agent Protocol (CAP)**. Any
+> A **paid, callable** verification agent on the **CROO Agent Protocol (CAP)**. Any
 > agent — in any framework — can hire Veritas to fact-check claims (or a block of
-> generated text) against **live, cited web sources**, and receives a structured
+> generated text) against **live, cited sources**, and receives a structured
 > verdict with a **tamper-evident, on-chain-auditable provenance record**.
 
 **Tracks:** Data & Verification (primary) · Open – Any A2A Agents (secondary)
-**Settlement:** USDC on Base, via CAP escrow · **Brain:** Claude (`claude-opus-4-8`)
+**Settlement:** USDC on Base (chainId 8453), via CAP · **Brain:** Claude (`claude-opus-4-8`)
+**Repo:** https://github.com/caelum0x/veritas · **License:** MIT
+
+> **Demo video:** _add link_ · **Live showcase:** _add Vercel URL_ · **CROO Store listing:** _add link_
 
 ---
 
 ## Why a verifier?
 
-A verifier is the most *composable* service in the agent economy. A research
-agent, a content-ops agent, or a DeFi alert bot all share one need: **don't act
-on — or pay for — another agent's output until it's been checked.** Veritas is
-that dependency. It's designed to be hired by other agents, which is exactly the
-A2A composability CAP exists to enable.
+A verifier is the most *composable* service in the agent economy. A research agent,
+a content-ops agent, or a DeFi alert bot all share one need: **don't act on — or pay
+for — another agent's output until it's been checked.** Veritas is that dependency.
+It is designed to be hired by other agents, which is exactly the A2A composability
+CAP exists to enable.
 
-What you get back is not just a yes/no — it's an auditable artifact:
+What you get back is not a yes/no — it's an auditable artifact:
 
 - Per-claim verdict: `SUPPORTED` / `REFUTED` / `UNVERIFIABLE`
 - Cited sources with verbatim supporting/refuting quotes
 - A calibrated confidence per claim and an aggregate **trust score** (0–100)
-- A **provenance block**: a SHA-256 content hash over the inputs + verdicts,
-  plus model, version, and timestamp — reproducible by anyone, and matched
-  against the `contentHash` CAP records on delivery.
+- A **provenance block**: a SHA-256 content hash over the inputs + verdicts, plus
+  model, version, and timestamp — reproducible by anyone, and matched against the
+  `contentHash` CAP records on delivery.
 
 ---
 
-## How it works
+## How a job runs
 
 ```
  Buyer agent                         CAP (Base)                    Veritas provider
  ───────────                         ──────────                    ────────────────
- negotiateOrder(requirements) ─────▶ NegotiationCreated ─────────▶ validate requirements
+ negotiate(requirements)  ─────────▶ NegotiationCreated ─────────▶ validate requirements
                                                                    accept (or reject if bad)
                               ◀───── OrderCreated
- payOrder()  (USDC → escrow) ──────▶ OrderPaid ──────────────────▶ run verification:
-                                                                     1. resolve/extract claims
-                                                                     2. web-search evidence (Claude)
+ pay()  (USDC → escrow)   ─────────▶ OrderPaid ──────────────────▶ run verification:
+                                                                     1. extract / route claims
+                                                                     2. research vs. LIVE sources
                                                                      3. structured adjudication
                                                                      4. hash + assemble report
-                              ◀───── OrderCompleted ◀────────────── deliverOrder(Schema, report)
+                              ◀───── OrderCompleted ◀────────────── deliver(report + contentHash)
  getDelivery() → report                (settle on-chain)
 ```
 
-The CAP lifecycle is **Negotiate → Lock → Deliver → Clear**. Veritas validates
-the request at *negotiation* time, so a buyer never locks funds against
-malformed input. Verification runs only after payment; the result is delivered
-as a `Schema` deliverable and settled on-chain.
+The CAP lifecycle is **Negotiate → Lock → Deliver → Clear**. Veritas validates the
+request at *negotiation* time, so a buyer never locks funds against malformed input.
+Verification runs only after payment; the result is delivered with a content hash and
+settled on-chain.
 
 ---
 
-## The A2A interface (the whole contract)
+## The A2A contract
 
-**Input** — the CAP negotiation `requirements` string is JSON:
+**Input** — the negotiation `requirements` payload (JSON):
 
 ```jsonc
 {
   // provide EITHER claims OR text
   "claims": ["The Eiffel Tower is in Paris.", "Bitcoin launched in 2009."],
   "text": "A paragraph of generated output to fact-check…",
-  "context": "Optional: domain / time frame / subject to disambiguate.",
-  "options": { "allowedDomains": ["wikipedia.org", "reuters.com"] }
+  "context": "Optional: domain / time frame / subject to disambiguate."
 }
 ```
 
-**Output** — the delivery `deliverableSchema` string is a `veritas.report.v1`:
+**Output** — the `veritas.report.v1` deliverable:
 
 ```jsonc
 {
   "schema": "veritas.report.v1",
-  "summary": "Checked 3 claims: 2 supported, 1 refuted, 0 unverifiable. Aggregate trust score: 66.7/100.",
+  "summary": "Checked 3 claims: 2 supported, 1 refuted, 0 unverifiable. Trust score 66.7/100.",
   "trustScore": 66.7,
   "counts": { "supported": 2, "refuted": 1, "unverifiable": 0, "skipped": 0 },
   "claims": [
@@ -89,134 +91,147 @@ as a `Schema` deliverable and settled on-chain.
     "verifier": "veritas",
     "verifierVersion": "1.0.0",
     "model": "claude-opus-4-8",
-    "effort": "high",
-    "createdAt": "2026-06-27T…Z",
+    "createdAt": "2026-06-29T…Z",
     "claimCount": 3,
     "sourceCount": 4
   }
 }
 ```
 
-Both sides are validated with Zod at the boundary (`src/verify/schema.ts`).
+Both sides are validated with Zod at the boundary. The provenance `contentHash` is
+computed over a canonicalised (key-sorted) `{ request, claims }`, deliberately excluding
+the timestamp, so the same evidence yields the same commitment — anyone can recompute it.
+
+---
+
+## Real sources, not mocks
+
+Claims are routed to one of **six specialized verifier domains**, each backed by a
+**live API** (most keyless). Verdicts cite primary sources — nothing is fabricated.
+
+| Domain | Live sources (keyless unless noted) |
+| --- | --- |
+| Scientific | Crossref · arXiv · PubMed · Retraction Watch |
+| Medical | openFDA drug labels · NLM Clinical Tables ICD-10-CM |
+| Financial | SEC EDGAR full-text search · _market-data / fundamentals (keyed)_ |
+| Legal | CourtListener case law (v4) |
+| Crypto | CoinGecko prices · EVM JSON-RPC tx lookup · Sourcify contract verification |
+| News | cross-source / recency / outlet-registry / wire (keyed: `NEWS_API_KEY`) |
+
+The brain is the real Anthropic provider (`claude-opus-4-8`) when `ANTHROPIC_API_KEY`
+is set; a mock provider is used only as an explicit unconfigured fallback. **No mock
+data source ever enters the production verification path.**
+
+---
+
+## CAP integration (where it lives)
+
+The CAP provider is a long-running agent, not a serverless function:
+
+| Piece | Location | Role |
+| --- | --- | --- |
+| Provider entrypoint | `apps/cap-agent/` | boot, supervise, health, graceful shutdown |
+| CAP provider runtime | `packages/cap/` | client, `event-router`, `lifecycle/`, `negotiation-policy`, `delivery-builder`, `settlement` |
+| A2A bridge | `packages/a2a-protocol/cap-bridge.ts` | translate A2A task ⇄ CAP negotiation |
+| Verification engine | `packages/verification/` + `@veritas/container` | stages, domain-verifier router, report assembly |
+| SDK | `@croo-network/sdk` (`^0.2.1`) | CAP network client dependency |
+
+CAP lifecycle operations the provider implements: **validate & accept/reject** a
+negotiation (`packages/cap/lifecycle`, `negotiation-policy.ts`), **run verification on
+`OrderPaid`**, **deliver** the report with a content hash (`delivery-builder.ts`), and
+**record on-chain settlement** (`settlement.ts`). Chain: Base (`8453`); settlement in USDC.
 
 ---
 
 ## Setup
 
-Requires **Node.js 18+**.
+Requires **Node.js 18+** (20+ recommended).
 
 ```bash
-git clone <this-repo>
+git clone https://github.com/caelum0x/veritas
 cd veritas
 npm install
-cp .env.example .env   # then fill in the values below
+cp .env.example .env      # fill in CROO_* + ANTHROPIC_API_KEY (see .env.example)
 ```
 
-1. **Register on the CROO Agent Store.** Create an agent, then a **service**
-   (name it e.g. "Veritas — Fact Verification", price it in USDC, set the
-   deliverable type to *Schema*). Copy the **SDK-Key** (shown once).
-2. Fill `.env`:
-   - `CROO_API_URL`, `CROO_WS_URL`, `CROO_SDK_KEY` — from the dashboard
-   - `ANTHROPIC_API_KEY` — the verification brain
-   - (optional) `VERITAS_MODEL`, `VERITAS_EFFORT`, `VERITAS_MAX_CLAIMS`,
-     `VERITAS_CONCURRENCY`, `VERITAS_MAX_SEARCHES`, `VERITAS_LOG_LEVEL`
+Key env (read & Zod-validated by `@veritas/config`):
 
-### Run the provider (go live)
+| Var | Purpose |
+| --- | --- |
+| `CROO_RPC_URL` | Base JSON-RPC endpoint |
+| `CROO_USDC_ADDRESS` | USDC token contract on Base |
+| `CROO_AGENT_PRIVATE_KEY` | agent wallet key (keep secret) |
+| `CROO_AGENT_ID` | on-chain agent identifier |
+| `CROO_CHAIN_ID` | `8453` (Base mainnet) |
+| `CROO_SIMULATE` | `true` to dry-run without real transactions |
+| `ANTHROPIC_API_KEY` | the verification brain |
+
+Optional source keys (`NEWS_API_KEY`, `MARKET_DATA_API_KEY`, `OPENFDA_API_KEY`, …)
+only enable keyed domains or raise rate limits — the keyless domains work without them.
+
+### Run the CAP provider
 
 ```bash
-npm start          # connects the WebSocket, accepts jobs, settles on-chain
+npm run agent      # apps/cap-agent — connects to CROO, accepts jobs, settles deliveries
 ```
-
-### Try the verification engine locally (no CAP round-trip)
-
-```bash
-echo '{"claims":["The Great Wall of China is visible from the Moon with the naked eye."]}' \
-  | npm run verify:local
-```
-
-### Hire Veritas from another agent (A2A demo)
-
-In a second terminal, with `CROO_TARGET_SERVICE_ID` set to your listed service:
-
-```bash
-CROO_TARGET_SERVICE_ID=<veritas service id> npm run requester
-```
-
-`examples/requester.ts` is a complete buyer agent: it opens a negotiation, pays
-USDC into escrow on `OrderCreated`, and prints the verified report on
-`OrderCompleted` — the exact pattern any dependent agent would use.
 
 ### Quality gates
 
 ```bash
-npm run typecheck   # tsc --noEmit
-npm test            # 22 unit tests (vitest)
-npm run build       # emit dist/
+npm run typecheck  # per-app + packages typecheck (0 errors across packages + all 31 apps)
+npm test           # 49 unit tests (node:test via tsx) — all passing
+```
+
+> Note: `npm run typecheck` runs each app as its own TypeScript program
+> (`scripts/typecheck-all.mjs`). The apps globally augment `Express.Request`, so
+> compiling them together (the old `typecheck:root`) produces phantom errors.
+
+---
+
+## Architecture (monorepo)
+
+A platform monorepo (~31 apps, ~190 packages). The submission agent is the slice
+that makes Veritas a callable, paid CAP provider:
+
+```
+apps/
+  cap-agent/            CAP provider entrypoint (the agent that goes live)
+  api/ public-api/ …    supporting platform services
+packages/
+  cap/                  CAP provider runtime (lifecycle, settlement, delivery)
+  a2a-protocol/         A2A ⇄ CAP bridge + negotiation
+  verification/         verification engine + pipeline stages
+  container/            DI container — wires verifiers + real data sources
+  verifiers-scientific/ -medical/ -financial/ -legal/ -crypto/ -news/
+  llm/                  vendor-agnostic LLM seam + real AnthropicProvider
+  config/ core/ …       config (Zod), result types, observability, persistence
+web/                    static showcase site (deploys to Vercel)
 ```
 
 ---
 
-## CAP SDK methods used (`@croo-network/sdk`)
+## Deployment
 
-| Method | Where | Purpose |
-| --- | --- | --- |
-| `new AgentClient(config, sdkKey)` | `src/croo/client.ts` | Runtime client (auth + on-chain settlement) |
-| `connectWebSocket()` → `EventStream` | `src/croo/provider.ts` | Real-time CAP event stream |
-| `EventStream.on(EventType.*, …)` | `src/croo/provider.ts` | Subscribe to lifecycle events |
-| `getNegotiation(id)` | provider | Load `requirements` to validate |
-| `acceptNegotiation(id)` / `rejectNegotiation(id, reason)` | provider | Accept valid jobs, reject malformed ones pre-payment |
-| `deliverOrder(id, { deliverableType: Schema, deliverableSchema })` | provider | Deliver the report; SDK returns a `contentHash` + `txHash` |
-| `rejectOrder(id, reason)` | provider | Release escrow if verification can't complete |
-| `getOrder(id)` | provider | Fallback request resolution after restart |
-| `negotiateOrder(req)` / `payOrder(id)` / `getDelivery(id)` | `examples/requester.ts` | Buyer-side A2A flow |
+- **Showcase site** (`web/`) → **Vercel** (static). `vercel.json` is included.
+- **CAP provider** (`apps/cap-agent`) → any persistent host (Render / Railway / Fly).
+  `Dockerfile` + `render.yaml` are included.
 
-Events handled: `NegotiationCreated`, `OrderPaid`, `OrderCompleted`,
-`OrderRejected`, `OrderExpired` (provider) and `OrderCreated`, `OrderCompleted`
-(requester).
+Step-by-step (both) is in **[DEPLOY.md](./DEPLOY.md)**.
 
 ---
 
-## Integration notes & design decisions
+## Hackathon submission
 
-- **Validate before lock.** Requirements are schema-checked at
-  `NegotiationCreated`; invalid input is rejected before any USDC enters escrow.
-- **Two-phase verification.** Each claim is first *researched* with Claude's
-  server-side `web_search` tool (live evidence), then *adjudicated* with a
-  structured-output call. Splitting the phases keeps evidence-gathering free to
-  roam while the verdict stays strictly schema-valid.
-- **Conservative by construction.** A verdict with no citation is auto-downgraded
-  to `UNVERIFIABLE`; the adjudicator is instructed to prefer `UNVERIFIABLE` over
-  guessing. Per-claim failures are isolated — one bad claim never fails the job.
-- **Reproducible provenance.** `contentHash` is computed over a *canonicalised*
-  (key-sorted) `{ request, claims }`, deliberately excluding the timestamp, so
-  the same evidence yields the same commitment. Anyone can recompute it; it lines
-  up with the `contentHash` CAP stamps on delivery for end-to-end auditability.
-- **Sovereign execution.** Data and compute stay yours — only the priced result
-  and its hash settle on-chain.
-- **Crash-resilient.** If the provider restarts between payment and delivery, it
-  reconstructs the request from the order/negotiation via the API.
+This BUIDL targets all five CROO submission requirements — see **[SUBMISSION.md](./SUBMISSION.md)**
+for the DoraHacks fields and CROO Agent Store listing copy.
 
-## Project layout
+- [x] **Open source** — public GitHub repo, MIT ([LICENSE](./LICENSE))
+- [x] **Integrated with CAP** — `apps/cap-agent` + `packages/cap`, `@croo-network/sdk`, USDC settlement on Base
+- [x] **README + setup** — this file (setup, SDK/integration notes, architecture)
+- [ ] **Listed on CROO Agent Store** — _add listing link_
+- [ ] **Demo video (≤5 min)** — _add link_ + file the BUIDL on DoraHacks
 
-```
-src/
-  config.ts            env validation (fail-fast, Zod)
-  logger.ts            structured JSON logger (implements CAP Logger)
-  index.ts             provider entrypoint
-  cli.ts               local verification harness
-  croo/
-    client.ts          AgentClient factory
-    provider.ts        CAP event loop (the integration)
-  llm/
-    types.ts           VerifierLLM interface (vendor-agnostic seam)
-    anthropic.ts       Claude-backed research + adjudication
-  verify/
-    schema.ts          the A2A request/report contract
-    engine.ts          orchestration + report assembly
-    provenance.ts      canonical hashing + trust score
-examples/requester.ts  buyer agent (A2A composability demo)
-test/                  22 unit tests
-```
+---
 
 ## License
 
