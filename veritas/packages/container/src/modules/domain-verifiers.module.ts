@@ -15,7 +15,7 @@ import type {
   VerifierContext,
   DataSourcePort,
 } from "@veritas/verifier-kit";
-import { MedicalVerifier, createOpenFdaDrugSource } from "@veritas/verifiers-medical";
+import { MedicalVerifier, createOpenFdaDrugSource, createNlmIcdSource } from "@veritas/verifiers-medical";
 import { LegalVerifier, createCourtListenerCaseLawSource } from "@veritas/verifiers-legal";
 import {
   NewsVerifier,
@@ -37,7 +37,12 @@ import {
   createMarketDataSource,
   createFundamentalsSource,
 } from "@veritas/verifiers-financial";
-import { CryptoVerifier, createCoinGeckoPriceFeed } from "@veritas/verifiers-crypto";
+import {
+  CryptoVerifier,
+  createCoinGeckoPriceFeed,
+  createEvmRpcTxLookup,
+  createSourcifyContractVerify,
+} from "@veritas/verifiers-crypto";
 import type { DomainVerifierRouter, DomainVerdict } from "@veritas/verification";
 import type { Container } from "../container.js";
 import { LOGGER, LLM_PROVIDER, DOMAIN_VERIFIER_ROUTER } from "../tokens.js";
@@ -81,11 +86,20 @@ function buildSources(): ReadonlyMap<string, DataSourcePort> {
   // Medical — openFDA drug labels (keyless; an optional key raises rate limits).
   sources.set("drug-db", createOpenFdaDrugSource({ apiKey: envKey("OPENFDA_API_KEY") }));
 
+  // Medical — ICD-10-CM diagnosis codes via NLM Clinical Tables (keyless).
+  sources.set("icd", createNlmIcdSource());
+
   // Legal — CourtListener case law is public (an optional token raises limits).
   sources.set("case-law", createCourtListenerCaseLawSource({ apiToken: envKey("COURTLISTENER_API_TOKEN") }));
 
   // Crypto — CoinGecko price feed is public (an optional key raises limits).
   sources.set("price-feed", createCoinGeckoPriceFeed({ apiKey: envKey("COINGECKO_API_KEY") }));
+
+  // Crypto — on-chain transaction lookups via public EVM JSON-RPC (keyless).
+  sources.set("tx-lookup", createEvmRpcTxLookup());
+
+  // Crypto — contract source-verification status via Sourcify (keyless).
+  sources.set("contract-verify", createSourcifyContractVerify());
 
   // Financial — SEC EDGAR full-text search is public and keyless.
   sources.set("edgar", createEdgarSource());

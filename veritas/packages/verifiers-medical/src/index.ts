@@ -73,8 +73,12 @@ export type { OpenFdaDrugSourceOptions } from "./sources/openfda-drug.js";
 export type { GuidelinesPort } from "./sources/guidelines.js";
 export { MockGuidelinesSource } from "./sources/guidelines.js";
 
-export type { IcdPort } from "./sources/icd.js";
+export type { IcdPort, IcdCodeEntry } from "./sources/icd.js";
 export { MockIcdSource } from "./sources/icd.js";
+
+// Real, network-backed ICD-10-CM source (NLM Clinical Tables, keyless).
+export { NlmIcdSource, createNlmIcdSource } from "./sources/nlm-icd.js";
+export type { NlmIcdSourceOptions } from "./sources/nlm-icd.js";
 
 export type { EvidenceGradePort } from "./sources/evidence-grade.js";
 export { MockEvidenceGradeSource } from "./sources/evidence-grade.js";
