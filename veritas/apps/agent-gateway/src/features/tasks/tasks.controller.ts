@@ -42,9 +42,10 @@ export async function createTask(
   });
 
   if (isErr(result)) {
-    const httpStatus = isGatewayError(result.error) ? result.error.statusCode : 500;
+    const httpStatus = isGatewayError(result.error) ? result.error.status : 500;
     const code = isGatewayError(result.error) ? result.error.code : "INTERNAL_ERROR";
-    res.status(httpStatus).json(makeA2AError(code, result.error.message, body.correlationId));
+    const message = result.error instanceof Error ? result.error.message : "Task processing failed";
+    res.status(httpStatus).json(makeA2AError(code, message, body.correlationId));
     return;
   }
 
@@ -71,7 +72,8 @@ export function listTasks(
   });
 
   if (isErr(result)) {
-    res.status(500).json({ error: "INTERNAL_ERROR", message: result.error.message });
+    const message = result.error instanceof Error ? result.error.message : "Internal error";
+    res.status(500).json({ error: "INTERNAL_ERROR", message });
     return;
   }
 
@@ -92,9 +94,10 @@ export function getTaskById(
 
   const result = deps.tasksService.getTask(paramsResult.data.taskId);
   if (isErr(result)) {
-    const httpStatus = isGatewayError(result.error) ? result.error.statusCode : 500;
+    const httpStatus = isGatewayError(result.error) ? result.error.status : 500;
     const code = isGatewayError(result.error) ? result.error.code : "INTERNAL_ERROR";
-    res.status(httpStatus).json({ error: code, message: result.error.message });
+    const message = result.error instanceof Error ? result.error.message : "Internal error";
+    res.status(httpStatus).json({ error: code, message });
     return;
   }
 
@@ -118,9 +121,10 @@ export function cancelTaskById(
 
   const result = deps.tasksService.cancelTask(paramsResult.data.taskId, cancelReason);
   if (isErr(result)) {
-    const httpStatus = isGatewayError(result.error) ? result.error.statusCode : 500;
+    const httpStatus = isGatewayError(result.error) ? result.error.status : 500;
     const code = isGatewayError(result.error) ? result.error.code : "INTERNAL_ERROR";
-    res.status(httpStatus).json({ error: code, message: result.error.message });
+    const message = result.error instanceof Error ? result.error.message : "Internal error";
+    res.status(httpStatus).json({ error: code, message });
     return;
   }
 

@@ -44,13 +44,14 @@ export interface RoleService {
 
 export function makeRoleController(roleService: RoleService) {
   async function listRoles(
-    req: Request & { validated?: ListRolesInput },
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
+      const validated = req.validated as ListRolesInput | undefined;
       const { limit = 20, search, organizationId } =
-        req.validated?.query ?? {};
+        validated?.query ?? {};
       const result = await roleService.listRoles({
         page: 1,
         limit: Number(limit),
@@ -68,12 +69,13 @@ export function makeRoleController(roleService: RoleService) {
   }
 
   async function getRole(
-    req: Request & { validated?: GetRoleInput },
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const id = req.validated?.params.id ?? req.params["id"] ?? "";
+      const validated = req.validated as GetRoleInput | undefined;
+      const id = validated?.params.id ?? req.params["id"] ?? "";
       const role = await roleService.getRoleById(id);
       if (role === null) {
         return next(new HttpError(404, "NOT_FOUND", "Role not found"));
@@ -85,12 +87,13 @@ export function makeRoleController(roleService: RoleService) {
   }
 
   async function createRole(
-    req: Request & { validated?: CreateRoleInput },
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const body = req.validated?.body ?? req.body;
+      const validated = req.validated as CreateRoleInput | undefined;
+      const body = validated?.body ?? req.body;
       const role = await roleService.createRole({
         name: body.name,
         description: body.description,
@@ -108,13 +111,14 @@ export function makeRoleController(roleService: RoleService) {
   }
 
   async function updateRole(
-    req: Request & { validated?: UpdateRoleInput },
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const id = req.validated?.params.id ?? req.params["id"] ?? "";
-      const body = req.validated?.body ?? req.body;
+      const validated = req.validated as UpdateRoleInput | undefined;
+      const id = validated?.params.id ?? req.params["id"] ?? "";
+      const body = validated?.body ?? req.body;
       const role = await roleService.updateRole(id, {
         name: body.name,
         description: body.description,
@@ -131,12 +135,13 @@ export function makeRoleController(roleService: RoleService) {
   }
 
   async function deleteRole(
-    req: Request & { validated?: DeleteRoleInput },
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const id = req.validated?.params.id ?? req.params["id"] ?? "";
+      const validated = req.validated as DeleteRoleInput | undefined;
+      const id = validated?.params.id ?? req.params["id"] ?? "";
       const deleted = await roleService.deleteRole(id);
       if (!deleted) {
         return next(new HttpError(404, "NOT_FOUND", "Role not found"));
@@ -148,13 +153,14 @@ export function makeRoleController(roleService: RoleService) {
   }
 
   async function assignPermissions(
-    req: Request & { validated?: AssignPermissionsInput },
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const id = req.validated?.params.id ?? req.params["id"] ?? "";
-      const { permissions } = req.validated?.body ?? req.body;
+      const validated = req.validated as AssignPermissionsInput | undefined;
+      const id = validated?.params.id ?? req.params["id"] ?? "";
+      const { permissions } = validated?.body ?? req.body;
       const role = await roleService.assignPermissions(id, permissions);
       if (role === null) {
         return next(new HttpError(404, "NOT_FOUND", "Role not found"));
@@ -166,13 +172,14 @@ export function makeRoleController(roleService: RoleService) {
   }
 
   async function revokePermissions(
-    req: Request & { validated?: RevokePermissionsInput },
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const id = req.validated?.params.id ?? req.params["id"] ?? "";
-      const { permissions } = req.validated?.body ?? req.body;
+      const validated = req.validated as RevokePermissionsInput | undefined;
+      const id = validated?.params.id ?? req.params["id"] ?? "";
+      const { permissions } = validated?.body ?? req.body;
       const role = await roleService.revokePermissions(id, permissions);
       if (role === null) {
         return next(new HttpError(404, "NOT_FOUND", "Role not found"));

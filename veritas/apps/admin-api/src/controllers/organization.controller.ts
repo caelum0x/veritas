@@ -62,7 +62,7 @@ export interface OrganizationService {
 
 export function makeOrganizationController(orgService: OrganizationService) {
   async function listOrganizations(
-    req: Request & { validated?: ListOrganizationsInput },
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -83,7 +83,7 @@ export function makeOrganizationController(orgService: OrganizationService) {
   }
 
   async function getOrganization(
-    req: Request & { validated?: GetOrganizationInput },
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -103,7 +103,7 @@ export function makeOrganizationController(orgService: OrganizationService) {
   }
 
   async function createOrganization(
-    req: Request & { validated?: CreateOrganizationInput },
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -121,7 +121,7 @@ export function makeOrganizationController(orgService: OrganizationService) {
   }
 
   async function updateOrganization(
-    req: Request & { validated?: UpdateOrganizationInput },
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -146,7 +146,7 @@ export function makeOrganizationController(orgService: OrganizationService) {
   }
 
   async function deleteOrganization(
-    req: Request & { validated?: DeleteOrganizationInput },
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {

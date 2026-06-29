@@ -34,13 +34,13 @@ export class RetentionService {
     return this.deps.policyRegistry.listAll();
   }
 
-  getPolicy(id: string): Result<RetentionPolicy> {
+  getPolicy(id: string): Result<RetentionPolicy, Error> {
     const result = this.deps.policyRegistry.getById(id);
     if (!result.ok) return err(result.error);
     return ok(result.value);
   }
 
-  createPolicy(body: CreatePolicyBody): Result<RetentionPolicy> {
+  createPolicy(body: CreatePolicyBody): Result<RetentionPolicy, Error> {
     const dto: CreateRetentionPolicy = {
       name: body.name,
       description: body.description,
@@ -68,7 +68,7 @@ export class RetentionService {
     return ok(result.value);
   }
 
-  updatePolicy(id: string, body: UpdatePolicyBody): Result<RetentionPolicy> {
+  updatePolicy(id: string, body: UpdatePolicyBody): Result<RetentionPolicy, Error> {
     const patch: Partial<Omit<RetentionPolicy, "id" | "createdAt">> = {};
     if (body.name !== undefined) patch.name = body.name;
     if (body.description !== undefined) patch.description = body.description;
@@ -95,7 +95,7 @@ export class RetentionService {
     return ok(result.value);
   }
 
-  deletePolicy(id: string): Result<void> {
+  deletePolicy(id: string): Result<void, Error> {
     const result = this.deps.policyRegistry.remove(id);
     if (!result.ok) return err(result.error);
 
@@ -119,7 +119,7 @@ export class RetentionService {
     return this.holds.filter((h) => h.status === statusFilter);
   }
 
-  getLegalHold(id: string): Result<LegalHold> {
+  getLegalHold(id: string): Result<LegalHold, Error> {
     const hold = this.holds.find((h) => h.id === id);
     if (hold === undefined) {
       return err(new Error(`Legal hold not found: ${id}`));
@@ -152,7 +152,7 @@ export class RetentionService {
     return hold;
   }
 
-  releaseLegalHold(id: string): Result<LegalHold> {
+  releaseLegalHold(id: string): Result<LegalHold, Error> {
     const idx = this.holds.findIndex((h) => h.id === id);
     if (idx === -1) {
       return err(new Error(`Legal hold not found: ${id}`));
@@ -180,7 +180,7 @@ export class RetentionService {
   }
 
   evaluateRecords(records: ReadonlyArray<RecordRef>): ReadonlyArray<ExpiryEvaluation> {
-    const now = this.deps.clock.now().toISOString();
+    const now = this.deps.clock.nowIso();
     const policies = this.deps.policyRegistry.listAll();
     const activeHolds = this.holds.filter((h) => h.status === "active");
 
@@ -193,7 +193,7 @@ export class RetentionService {
   }
 
   checkRecordHold(recordId: string, category: string): boolean {
-    const now = this.deps.clock.now().toISOString();
+    const now = this.deps.clock.nowIso();
     return isUnderLegalHold(this.holds, category, recordId, now);
   }
 

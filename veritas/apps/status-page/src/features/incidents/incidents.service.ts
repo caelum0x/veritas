@@ -1,18 +1,12 @@
 // Incidents feature service — wraps IncidentService from @veritas/incident with logging.
-import { isOk, isErr, ok, err, type Result } from "@veritas/core";
+import { isErr } from "@veritas/core";
 import type {
-  Incident,
-  CreateIncident,
   UpdateIncident,
   TimelineEntry,
   CreateTimelineEntry,
-  Postmortem,
-  CreatePostmortem,
   IncidentListFilter,
-  IncidentStatus,
 } from "@veritas/incident";
 import { IncidentService } from "@veritas/incident";
-import type { IncidentMetrics, SloMetrics } from "@veritas/incident";
 import type { Logger } from "@veritas/observability";
 
 export interface IncidentsDeps {
@@ -23,8 +17,8 @@ export interface IncidentsDeps {
 /** Create a new incident via @veritas/incident IncidentService. */
 export async function createIncident(
   deps: IncidentsDeps,
-  data: CreateIncident,
-): Promise<Result<Incident>> {
+  data: Parameters<IncidentService["createIncident"]>[0],
+) {
   const result = await deps.incidentService.createIncident(data);
   if (isErr(result)) {
     deps.logger.error("Failed to create incident", { error: String(result.error) });
@@ -38,7 +32,7 @@ export async function createIncident(
 export async function getIncident(
   deps: IncidentsDeps,
   id: string,
-): Promise<Result<Incident>> {
+) {
   const result = await deps.incidentService.getIncident(id);
   if (isErr(result)) {
     deps.logger.warn("Incident not found", { incidentId: id });
@@ -51,7 +45,7 @@ export async function updateIncident(
   deps: IncidentsDeps,
   id: string,
   patch: UpdateIncident,
-): Promise<Result<Incident>> {
+) {
   const result = await deps.incidentService.updateIncident(id, patch);
   if (isErr(result)) {
     deps.logger.error("Failed to update incident", { incidentId: id, error: String(result.error) });
@@ -63,9 +57,9 @@ export async function updateIncident(
 export async function transitionStatus(
   deps: IncidentsDeps,
   id: string,
-  nextStatus: IncidentStatus,
+  nextStatus: Parameters<IncidentService["transitionStatus"]>[1],
   actorId: string,
-): Promise<Result<Incident>> {
+) {
   const result = await deps.incidentService.transitionStatus(id, nextStatus, actorId);
   if (isErr(result)) {
     deps.logger.error("Invalid status transition", {
@@ -88,7 +82,7 @@ export async function assignResponder(
   id: string,
   responderId: string,
   actorId: string,
-): Promise<Result<Incident>> {
+) {
   return deps.incidentService.assignResponder(id, responderId, actorId);
 }
 
@@ -98,7 +92,7 @@ export async function removeResponder(
   id: string,
   responderId: string,
   actorId: string,
-): Promise<Result<Incident>> {
+) {
   return deps.incidentService.removeResponder(id, responderId, actorId);
 }
 
@@ -106,7 +100,7 @@ export async function removeResponder(
 export async function listIncidents(
   deps: IncidentsDeps,
   filter: IncidentListFilter,
-): Promise<Result<{ items: Incident[]; total: number }>> {
+) {
   return deps.incidentService.listIncidents(filter);
 }
 
@@ -114,7 +108,7 @@ export async function listIncidents(
 export async function addTimelineEntry(
   deps: IncidentsDeps,
   data: CreateTimelineEntry,
-): Promise<Result<TimelineEntry>> {
+) {
   return deps.incidentService.addTimelineEntry(data);
 }
 
@@ -122,15 +116,15 @@ export async function addTimelineEntry(
 export async function getTimeline(
   deps: IncidentsDeps,
   incidentId: string,
-): Promise<Result<TimelineEntry[]>> {
+) {
   return deps.incidentService.getTimeline(incidentId);
 }
 
 /** Create a postmortem for an incident. */
 export async function createPostmortem(
   deps: IncidentsDeps,
-  data: CreatePostmortem,
-): Promise<Result<Postmortem>> {
+  data: Parameters<IncidentService["createPostmortem"]>[0],
+) {
   return deps.incidentService.createPostmortem(data);
 }
 
@@ -138,7 +132,7 @@ export async function createPostmortem(
 export async function getPostmortem(
   deps: IncidentsDeps,
   incidentId: string,
-): Promise<Result<Postmortem>> {
+) {
   return deps.incidentService.getPostmortem(incidentId);
 }
 
@@ -146,24 +140,24 @@ export async function getPostmortem(
 export async function updatePostmortem(
   deps: IncidentsDeps,
   incidentId: string,
-  patch: Partial<Omit<Postmortem, "id" | "incidentId" | "createdBy" | "createdAt">>,
-): Promise<Result<Postmortem>> {
+  patch: Parameters<IncidentService["updatePostmortem"]>[1],
+) {
   return deps.incidentService.updatePostmortem(incidentId, patch);
 }
 
 /** Get aggregated metrics for a set of incidents. */
 export async function getMetrics(
   deps: IncidentsDeps,
-  filter: Pick<IncidentListFilter, "from" | "to" | "severity" | "status">,
-): Promise<Result<IncidentMetrics>> {
+  filter: Parameters<IncidentService["getMetrics"]>[0],
+) {
   return deps.incidentService.getMetrics(filter);
 }
 
 /** Get SLO compliance metrics for incidents. */
 export async function getSloMetrics(
   deps: IncidentsDeps,
-  filter: Pick<IncidentListFilter, "from" | "to">,
+  filter: Parameters<IncidentService["getSloMetrics"]>[0],
   targetMttrMs: number,
-): Promise<Result<SloMetrics>> {
+) {
   return deps.incidentService.getSloMetrics(filter, targetMttrMs);
 }

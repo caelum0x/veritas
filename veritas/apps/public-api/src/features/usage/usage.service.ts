@@ -21,7 +21,7 @@ export interface UsageSummaryResult {
   readonly totalQuantity: number;
 }
 
-function asId<T>(value: string): Id<T> {
+function asId<T extends string>(value: string): Id<T> {
   return value as unknown as Id<T>;
 }
 

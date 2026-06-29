@@ -1,7 +1,8 @@
 // Consent service: orchestrates consent lifecycle via @veritas/consent and the consent-capture flow.
 
 import { ok, err, isOk, type Result } from "@veritas/core";
-import type { Clock, Logger, EventBus } from "@veritas/core";
+import type { Clock, EventBus } from "@veritas/core";
+import type { Logger } from "@veritas/observability";
 import { makeConsent, type Consent } from "@veritas/consent";
 import { runConsentCaptureFlow, type ConsentRepository } from "@veritas/flows-compliance";
 import type {

@@ -36,7 +36,10 @@ export class HttpApiError extends Error {
   }
 }
 
-export function toHttpError(error: AppError): HttpApiError {
+export function toHttpError(error: unknown): HttpApiError {
+  if (!(error instanceof AppError)) {
+    return new HttpApiError(500, "INTERNAL_ERROR", "An unexpected error occurred.");
+  }
   if (error instanceof NotFoundError)     return new HttpApiError(404, "NOT_FOUND",            error.message);
   if (error instanceof ConflictError)     return new HttpApiError(409, "CONFLICT",              error.message);
   if (error instanceof ValidationError) {

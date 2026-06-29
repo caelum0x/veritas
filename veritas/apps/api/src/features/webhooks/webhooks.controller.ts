@@ -1,6 +1,7 @@
 // Webhook HTTP controllers: validate requests, call service functions, map to responses.
 import type { Request, Response, NextFunction } from "express";
 import { isErr } from "@veritas/core";
+import type { WebhookDeliveryOutput } from "@veritas/services/webhook/webhook.dto.js";
 import { asyncHandler } from "../../http/async-handler.js";
 import { respondOk, respondCreated, respondNoContent, respondError } from "../../http/responder.js";
 import { toHttpError } from "../../http/api-error.js";
@@ -143,7 +144,7 @@ export function makeGetDeliveryHandler(deps: WebhooksDeps) {
       const { id, deliveryId } = req.params as WebhookDeliveryIdParam;
       const result = await listWebhookDeliveries(deps, req as AuthReq, { webhookId: id, limit: 100 });
       if (isErr(result)) return handleErr(res, result.error);
-      const delivery = result.value.items.find((d) => d.id === deliveryId);
+      const delivery = result.value.items.find((d: WebhookDeliveryOutput) => d.id === deliveryId);
       if (!delivery) {
         return respondError(res, 404, "NOT_FOUND", `Webhook delivery not found: ${deliveryId}`);
       }

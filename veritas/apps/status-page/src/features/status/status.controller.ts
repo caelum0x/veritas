@@ -6,6 +6,10 @@ import { getStatusPage, listSlos, getSlo, getSloEvaluations } from "./status.ser
 import { mapStatusPagePayload, mapSlo, mapSloSummary } from "./status.mapper.js";
 import type { StatusServiceDeps } from "./status.service.js";
 
+function errMsg(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
+
 const GetSloParamsSchema = z.object({ id: z.string().min(1) });
 
 const GetSloEvaluationsQuerySchema = z.object({
@@ -22,7 +26,7 @@ export async function handleGetStatus(
   try {
     const result = await getStatusPage(deps);
     if (isErr(result)) {
-      res.status(503).json({ success: false, error: { message: result.error.message } });
+      res.status(503).json({ success: false, error: { message: errMsg(result.error) } });
       return;
     }
     res.json({ success: true, data: mapStatusPagePayload(result.value) });
@@ -41,7 +45,7 @@ export async function handleListSlos(
   try {
     const result = await listSlos(deps);
     if (isErr(result)) {
-      res.status(500).json({ success: false, error: { message: result.error.message } });
+      res.status(500).json({ success: false, error: { message: errMsg(result.error) } });
       return;
     }
     const items = result.value.map(mapSlo);
@@ -66,7 +70,7 @@ export async function handleGetSlo(
     }
     const result = await getSlo(deps, parsed.data.id);
     if (isErr(result)) {
-      res.status(404).json({ success: false, error: { message: result.error.message } });
+      res.status(404).json({ success: false, error: { message: errMsg(result.error) } });
       return;
     }
     res.json({ success: true, data: mapSlo(result.value) });
@@ -95,7 +99,7 @@ export async function handleGetSloEvaluations(
     }
     const result = await getSloEvaluations(deps, paramsParsed.data.id, queryParsed.data.limit);
     if (isErr(result)) {
-      res.status(404).json({ success: false, error: { message: result.error.message } });
+      res.status(404).json({ success: false, error: { message: errMsg(result.error) } });
       return;
     }
     res.json({ success: true, data: { items: result.value, total: result.value.length } });

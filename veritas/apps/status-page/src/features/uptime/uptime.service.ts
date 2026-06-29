@@ -23,7 +23,7 @@ import { mapComponentUptime } from "./uptime.mapper.js";
 export async function getUptimeSummary(
   deps: Deps,
 ): Promise<Result<readonly ComponentUptimeResponse[]>> {
-  const nowMs = deps.clock.nowMs();
+  const nowMs = deps.clock.now();
   try {
     const results = await Promise.all(
       TRACKED_COMPONENTS.map(async (tc) => {
@@ -56,7 +56,7 @@ export async function getComponentUptime(
   if (tracked === undefined) {
     return err(new Error(`Component '${componentId}' not found`));
   }
-  const nowMs = deps.clock.nowMs();
+  const nowMs = deps.clock.now();
   try {
     // Derive uptime from SLI buckets for this component's health check name.
     const windows = await Promise.all(
@@ -94,7 +94,7 @@ export async function evaluateAndStoreSlo(
     return sloResult;
   }
   const slo = sloResult.value;
-  const nowMs = deps.clock.nowMs();
+  const nowMs = deps.clock.now();
   const window = rollingWindow(nowMs, slo.windowDurationMs);
   const objective = { targetRatio: slo.targetRatio, operator: "gte" as const };
 
@@ -146,7 +146,7 @@ export async function generateAndStoreSloReport(
     return sloResult;
   }
   const slo = sloResult.value;
-  const nowMs = deps.clock.nowMs();
+  const nowMs = deps.clock.now();
 
   const evaluations = await deps.sloEvaluationRepository.findBySloId(sloId, limit);
   const alertEvents = await deps.burnAlertRepository.findBySloId(sloId);
@@ -191,7 +191,7 @@ export async function getSloErrorBudget(
   const sloResult = await deps.sloRepository.findById(sloId);
   if (isErr(sloResult)) return sloResult;
   const slo = sloResult.value;
-  const nowMs = deps.clock.nowMs();
+  const nowMs = deps.clock.now();
   const startMs = nowMs - slo.windowDurationMs;
 
   try {

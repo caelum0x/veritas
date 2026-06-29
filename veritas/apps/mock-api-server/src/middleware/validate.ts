@@ -13,7 +13,7 @@ export function validate<T>(schema: ZodSchema<T>, target: Target = "body"): Requ
       return;
     }
     // Attach parsed value back so downstream handlers get the coerced type.
-    (req as Record<string, unknown>)[target] = result.data;
+    (req as unknown as Record<string, unknown>)[target] = result.data;
     next();
   };
 }

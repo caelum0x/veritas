@@ -95,6 +95,7 @@ export class AgentCardController {
       } else {
         const publishErr = result.error;
         const status =
+          publishErr !== null && typeof publishErr === "object" &&
           "statusCode" in publishErr &&
           typeof (publishErr as { statusCode: unknown }).statusCode === "number"
             ? (publishErr as { statusCode: number }).statusCode

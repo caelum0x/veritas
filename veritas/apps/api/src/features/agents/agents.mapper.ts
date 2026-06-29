@@ -9,7 +9,7 @@ export interface AgentResponse {
   readonly endpoint: string | null;
   readonly publicKey: string | null;
   readonly trusted: boolean;
-  readonly metadata?: Record<string, string>;
+  readonly metadata?: Record<string, unknown>;
   readonly createdAt: string;
   readonly updatedAt: string;
 }

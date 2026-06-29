@@ -20,7 +20,7 @@ export function rateLimitMiddleware({ max, windowMs }: RateLimitOptions) {
   return function rateLimit(req: Request, res: Response, next: NextFunction): void {
     const principal = req.principal as Principal | undefined;
     const key = principal
-      ? deriveRateLimitKey(principal)
+      ? deriveRateLimitKey(principal, "global")
       : (req.ip ?? "unknown");
 
     const now = Date.now();

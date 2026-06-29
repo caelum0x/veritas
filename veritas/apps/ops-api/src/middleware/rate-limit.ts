@@ -27,7 +27,7 @@ export function makeRateLimitMiddleware(opts: RateLimitOptions) {
     const ip = req.ip ?? "unknown";
 
     const key = principal
-      ? deriveRateLimitKey({ principal, ip })
+      ? deriveRateLimitKey(principal, "global", ip)
       : `ip:${ip}`;
 
     const now = Date.now();

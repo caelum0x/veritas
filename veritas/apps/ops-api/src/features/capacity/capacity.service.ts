@@ -59,11 +59,11 @@ export class CapacityFeatureService {
     this.logger.debug("capacity_samples_ingested", { count: samples.length });
   }
 
-  private buildSource(resourceNames?: readonly string[]): InMemoryMetricSource {
+  private buildSource(resourceNames?: readonly string[]): MetricSource {
     const filtered = resourceNames && resourceNames.length > 0
       ? this.sampleBuffer.filter((s) => resourceNames.includes(s.resourceName))
       : [...this.sampleBuffer];
-    return new InMemoryMetricSource(filtered);
+    return new InMemoryMetricSource(filtered) as unknown as MetricSource;
   }
 
   async computePlan(body: PlanBody): Promise<Result<CapacityPlanResponse>> {
@@ -254,8 +254,8 @@ export class CapacityFeatureService {
       reportId: newId("cap-report"),
       generatedAt: new Date().toISOString(),
       window: body.window,
-      saturation: saturationResult.value.saturation,
-      recommendations: recResult.value.recommendations,
+      saturation: [...saturationResult.value.saturation],
+      recommendations: [...recResult.value.recommendations],
       summary: `Capacity report for model "${body.model.label}". Overall tier: ${overallTier}. ` +
         `${saturationResult.value.saturation.filter((s) => s.status === "critical").length} critical resources detected.`,
     };

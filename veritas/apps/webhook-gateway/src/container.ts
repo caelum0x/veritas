@@ -18,8 +18,10 @@ import {
   createApiKeyHasher,
   type Authenticator,
   type ApiKeyStore,
-  type StoredApiKey,
 } from "@veritas/auth";
+
+// StoredApiKey is not re-exported from @veritas/auth; derive it from ApiKeyStore.
+type StoredApiKey = NonNullable<Awaited<ReturnType<ApiKeyStore["findByKeyId"]>>>;
 import {
   AlwaysHealthyCheck,
   type HealthCheck,

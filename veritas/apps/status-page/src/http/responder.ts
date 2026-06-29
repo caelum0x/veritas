@@ -30,7 +30,7 @@ export function sendError(
   code: string,
   message: string,
 ): void {
-  res.status(statusCode).json(apiFailure(code, message));
+  res.status(statusCode).json(apiFailure({ code: code as import("@veritas/core").ErrorCode, message }));
 }
 
 export function sendNotFound(res: Response, resource: string, id?: string): void {

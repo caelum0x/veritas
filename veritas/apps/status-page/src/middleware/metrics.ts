@@ -1,7 +1,10 @@
 // Tracks HTTP request counts and latency via @veritas/observability MetricsRegistry.
 import type { Request, Response, NextFunction } from "express";
 import type { MetricsRegistry, Counter, Histogram } from "@veritas/observability";
-import { DEFAULT_HISTOGRAM_BUCKETS } from "@veritas/observability";
+
+const DEFAULT_HISTOGRAM_BUCKETS: readonly number[] = [
+  1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000,
+];
 
 export interface HttpMetrics {
   readonly requestCounter: Counter;

@@ -15,7 +15,7 @@ export function validateBody<T>(schema: ZodSchema<T>) {
       next(new ValidationError({ message: "Request body validation failed", issues }));
       return;
     }
-    (req as Record<string, unknown>)["validatedBody"] = result.data;
+    (req as unknown as Record<string, unknown>)["validatedBody"] = result.data;
     next();
   };
 }
@@ -32,17 +32,17 @@ export function validateQuery<T>(schema: ZodSchema<T>) {
       next(new ValidationError({ message: "Query parameter validation failed", issues }));
       return;
     }
-    (req as Record<string, unknown>)["validatedQuery"] = result.data;
+    (req as unknown as Record<string, unknown>)["validatedQuery"] = result.data;
     next();
   };
 }
 
 /** Retrieve the validated body attached by validateBody middleware. */
 export function getValidatedBody<T>(req: Request): T {
-  return (req as Record<string, unknown>)["validatedBody"] as T;
+  return (req as unknown as Record<string, unknown>)["validatedBody"] as T;
 }
 
 /** Retrieve the validated query attached by validateQuery middleware. */
 export function getValidatedQuery<T>(req: Request): T {
-  return (req as Record<string, unknown>)["validatedQuery"] as T;
+  return (req as unknown as Record<string, unknown>)["validatedQuery"] as T;
 }

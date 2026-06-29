@@ -5,6 +5,9 @@ import { isErr } from "@veritas/core";
 import { sendApiError } from "../http/api-error.js";
 import type { OpsRequest } from "../context.js";
 
+/** Express Request extended with an authenticated principal — alias for OpsRequest. */
+export type AuthenticatedRequest = OpsRequest;
+
 export function makeAuthMiddleware(authenticator: Authenticator) {
   return async function authMiddleware(
     req: Request,

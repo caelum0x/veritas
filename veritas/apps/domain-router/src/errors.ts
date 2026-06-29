@@ -21,7 +21,7 @@ export class HttpForbiddenError extends AppError {
 
 export class HttpBadRequestError extends AppError {
   constructor(message: string, opts?: Partial<AppErrorOptions>) {
-    super("BAD_REQUEST", 400, message, opts);
+    super("VALIDATION", 400, message, opts);
   }
 }
 
@@ -39,12 +39,50 @@ export class HttpTooManyRequestsError extends AppError {
 
 export class HttpUnprocessableError extends AppError {
   constructor(message: string, opts?: Partial<AppErrorOptions>) {
-    super("UNPROCESSABLE", 422, message, opts);
+    super("VALIDATION", 422, message, opts);
   }
 }
 
 export class HttpInternalError extends AppError {
   constructor(message = "Internal server error", opts?: Partial<AppErrorOptions>) {
+    super("INTERNAL", 500, message, opts);
+  }
+}
+
+// Domain-router routing error classes.
+
+export class RoutingError extends AppError {
+  constructor(message: string, opts?: Partial<AppErrorOptions>) {
+    super("INTERNAL", 500, message, opts);
+  }
+}
+
+export class PlanBuildError extends AppError {
+  constructor(claimId: string, reason: string, opts?: Partial<AppErrorOptions>) {
+    super("INTERNAL", 500, `Failed to build plan for claim "${claimId}": ${reason}`, opts);
+  }
+}
+
+export class DispatchError extends AppError {
+  constructor(verifierId: string, reason: string, opts?: Partial<AppErrorOptions>) {
+    super("INTERNAL", 500, `Dispatch failed for verifier "${verifierId}": ${reason}`, opts);
+  }
+}
+
+export class MergeError extends AppError {
+  constructor(claimId: string, reason: string, opts?: Partial<AppErrorOptions>) {
+    super("INTERNAL", 500, `Merge failed for claim "${claimId}": ${reason}`, opts);
+  }
+}
+
+export class FallbackError extends AppError {
+  constructor(claimId: string, reason: string, opts?: Partial<AppErrorOptions>) {
+    super("INTERNAL", 500, `Fallback failed for claim "${claimId}": ${reason}`, opts);
+  }
+}
+
+export class WeightConfigError extends AppError {
+  constructor(message: string, opts?: Partial<AppErrorOptions>) {
     super("INTERNAL", 500, message, opts);
   }
 }

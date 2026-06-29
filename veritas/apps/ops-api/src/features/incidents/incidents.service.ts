@@ -1,9 +1,6 @@
 // Incidents feature service — delegates all lifecycle operations to @veritas/incident IncidentService.
-import { type Result, isErr } from "@veritas/core";
+import { type Result } from "@veritas/core";
 import {
-  type Incident,
-  type TimelineEntry,
-  type Postmortem,
   type IncidentListFilter,
   type IncidentMetrics,
   type SloMetrics,
@@ -31,11 +28,11 @@ export class IncidentsFeatureService {
 
   async list(
     filter: IncidentListFilter,
-  ): Promise<Result<{ items: Incident[]; total: number }>> {
+  ) {
     return this.svc.listIncidents(filter);
   }
 
-  async create(body: CreateIncidentBody): Promise<Result<Incident>> {
+  async create(body: CreateIncidentBody) {
     return this.svc.createIncident({
       title: body.title,
       description: body.description,
@@ -46,11 +43,11 @@ export class IncidentsFeatureService {
     });
   }
 
-  async get(id: string): Promise<Result<Incident>> {
+  async get(id: string) {
     return this.svc.getIncident(id);
   }
 
-  async update(id: string, body: UpdateIncidentBody): Promise<Result<Incident>> {
+  async update(id: string, body: UpdateIncidentBody) {
     return this.svc.updateIncident(id, body);
   }
 
@@ -58,7 +55,7 @@ export class IncidentsFeatureService {
     id: string,
     status: string,
     actorId: string,
-  ): Promise<Result<Incident>> {
+  ) {
     return this.svc.transitionStatus(
       id,
       status as Parameters<IncidentService["transitionStatus"]>[1],
@@ -70,7 +67,7 @@ export class IncidentsFeatureService {
     incidentId: string,
     responderId: string,
     actorId: string,
-  ): Promise<Result<Incident>> {
+  ) {
     return this.svc.assignResponder(incidentId, responderId, actorId);
   }
 
@@ -78,7 +75,7 @@ export class IncidentsFeatureService {
     incidentId: string,
     responderId: string,
     actorId: string,
-  ): Promise<Result<Incident>> {
+  ) {
     return this.svc.removeResponder(incidentId, responderId, actorId);
   }
 
@@ -86,7 +83,7 @@ export class IncidentsFeatureService {
     incidentId: string,
     body: AddTimelineEntryBody,
     actorId: string,
-  ): Promise<Result<TimelineEntry>> {
+  ) {
     return this.svc.addTimelineEntry({
       incidentId,
       actorId,
@@ -97,7 +94,7 @@ export class IncidentsFeatureService {
     });
   }
 
-  async getTimeline(incidentId: string): Promise<Result<TimelineEntry[]>> {
+  async getTimeline(incidentId: string) {
     return this.svc.getTimeline(incidentId);
   }
 
@@ -105,7 +102,7 @@ export class IncidentsFeatureService {
     incidentId: string,
     body: CreatePostmortemBody,
     actorId: string,
-  ): Promise<Result<Postmortem>> {
+  ) {
     return this.svc.createPostmortem({
       incidentId,
       summary: body.summary,
@@ -117,7 +114,7 @@ export class IncidentsFeatureService {
     });
   }
 
-  async getPostmortem(incidentId: string): Promise<Result<Postmortem>> {
+  async getPostmortem(incidentId: string) {
     return this.svc.getPostmortem(incidentId);
   }
 

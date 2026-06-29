@@ -5,14 +5,16 @@ import {
   makeServiceContext,
   type CreateWebhookInput,
   type UpdateWebhookInput,
-  type ListWebhooksInput,
-  type ListWebhookDeliveriesInput,
-  type RetryWebhookDeliveryInput,
   type WebhookOutput,
-  type WebhookDeliveryOutput,
-  type WebhookListOutput,
-  type WebhookDeliveryListOutput,
 } from "@veritas/services";
+import type {
+  ListWebhooksInput,
+  ListWebhookDeliveriesInput,
+  RetryWebhookDeliveryInput,
+  WebhookDeliveryOutput,
+  WebhookListOutput,
+  WebhookDeliveryListOutput,
+} from "@veritas/services/webhook/webhook.dto.js";
 import type { AppError } from "@veritas/core";
 import type { Container } from "@veritas/container";
 import { WEBHOOK_SVC, LOGGER } from "@veritas/container/tokens";

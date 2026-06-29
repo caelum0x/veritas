@@ -1,7 +1,8 @@
 // Usage feature service: delegates to UsageMeteringService from @veritas/services via deps.
 import { epochToIso, newId, type Result, type Page } from "@veritas/core";
 import type { Usage } from "@veritas/contracts";
-import type { UsageMeteringService, UsageSummaryOutput } from "@veritas/services";
+import type { UsageMeteringService } from "@veritas/services";
+import type { UsageSummaryOutput } from "@veritas/services/usage-metering/usage-metering.dto.js";
 import { makeServiceContext, type Principal } from "@veritas/services";
 import type { Logger } from "@veritas/core";
 import type { AuthenticatedRequest } from "../../middleware/auth.js";

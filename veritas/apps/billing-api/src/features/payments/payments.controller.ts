@@ -1,8 +1,7 @@
 // HTTP controller for payments: validates requests, delegates to PaymentsService, maps responses.
 
 import type { Request, Response } from "express";
-import { isErr } from "@veritas/core";
-import { apiSuccess, apiFailure } from "@veritas/core";
+import { isErr, AppError, apiSuccess, apiFailure } from "@veritas/core";
 import { PaymentsService } from "./payments.service.js";
 import {
   ChargeBodySchema,
@@ -25,9 +24,10 @@ export class PaymentsController {
 
     const result = await this.service.charge(parsed.data);
     if (isErr(result)) {
-      const status = (result.error as { statusCode?: number }).statusCode ?? 500;
+      const e = result.error as AppError;
+      const status = e.status ?? 500;
       res.status(status).json(
-        apiFailure({ code: result.error.code ?? "INTERNAL", message: result.error.message }),
+        apiFailure({ code: e.code ?? "INTERNAL", message: e.message }),
       );
       return;
     }
@@ -51,9 +51,10 @@ export class PaymentsController {
 
     const result = await this.service.refund(parsed.data);
     if (isErr(result)) {
-      const status = (result.error as { statusCode?: number }).statusCode ?? 500;
+      const e = result.error as AppError;
+      const status = e.status ?? 500;
       res.status(status).json(
-        apiFailure({ code: result.error.code ?? "INTERNAL", message: result.error.message }),
+        apiFailure({ code: e.code ?? "INTERNAL", message: e.message }),
       );
       return;
     }
@@ -80,8 +81,9 @@ export class PaymentsController {
 
     const result = await this.service.listByOrg(parsed.data.organizationId);
     if (isErr(result)) {
+      const e = result.error as AppError;
       res.status(500).json(
-        apiFailure({ code: "INTERNAL", message: result.error.message }),
+        apiFailure({ code: "INTERNAL", message: e.message }),
       );
       return;
     }
@@ -94,9 +96,10 @@ export class PaymentsController {
 
     const result = await this.service.getById(paymentId);
     if (isErr(result)) {
-      const status = (result.error as { statusCode?: number }).statusCode ?? 404;
+      const e = result.error as AppError;
+      const status = e.status ?? 404;
       res.status(status).json(
-        apiFailure({ code: result.error.code ?? "NOT_FOUND", message: result.error.message }),
+        apiFailure({ code: e.code ?? "NOT_FOUND", message: e.message }),
       );
       return;
     }

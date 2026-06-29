@@ -3,6 +3,9 @@
 import type { Request } from "express";
 import type { Principal } from "@veritas/auth";
 
+/** Alias for the platform Principal used within the billing API. */
+export type BillingPrincipal = Principal;
+
 export interface BillingRequestContext {
   readonly requestId: string;
   readonly traceId?: string;

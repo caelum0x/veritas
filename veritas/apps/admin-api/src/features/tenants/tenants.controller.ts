@@ -56,9 +56,8 @@ export class TenantsController {
       const mapped = toTenantListResponse(result.value as never);
       sendPage(res, mapped.items, {
         total: mapped.total,
-        limit: query.limit ?? 20,
-        cursor: query.cursor,
-        nextCursor: mapped.nextCursor ?? undefined,
+        nextCursor: mapped.nextCursor ?? null,
+        hasMore: mapped.nextCursor != null,
       });
     } catch (err) { next(err); }
   }

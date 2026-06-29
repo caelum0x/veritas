@@ -29,7 +29,7 @@ export class DeliveriesService {
   ): Promise<Result<DeliveryRecord[], NotFoundError>> {
     const subResult = await this.registry.getById(subscriptionId);
     if (isErr(subResult)) {
-      return err(new NotFoundError(`Subscription not found: ${subscriptionId}`));
+      return err(new NotFoundError({ message: `Subscription not found: ${subscriptionId}` }));
     }
 
     const records = await storeFrom(this.tracker).findBySubscriptionId(subscriptionId, limit);
@@ -41,7 +41,7 @@ export class DeliveriesService {
   async getById(deliveryId: string): Promise<Result<DeliveryRecord, NotFoundError>> {
     const record = await storeFrom(this.tracker).findById(deliveryId);
     if (record === null) {
-      return err(new NotFoundError(`Delivery not found: ${deliveryId}`));
+      return err(new NotFoundError({ message: `Delivery not found: ${deliveryId}` }));
     }
     this.logger.info("Fetched delivery", { deliveryId, success: record.success });
     return ok(record);

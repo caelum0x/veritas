@@ -1,6 +1,6 @@
 // In-process token-bucket rate limiter middleware using @veritas/auth rate-limit key.
 import type { Request, Response, NextFunction } from "express";
-import { deriveRateLimitKey } from "@veritas/auth";
+import { deriveRateLimitKey, type Principal } from "@veritas/auth";
 import { getPrincipal } from "./auth.js";
 import { buildProblem } from "../http/problem.js";
 
@@ -22,11 +22,8 @@ function getOrCreate(key: string, windowMs: number): BucketEntry {
 
 export function rateLimitMiddleware(windowMs: number, max: number) {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const principal = getPrincipal(req);
-    const key = deriveRateLimitKey(
-      principal?.kind === "api_key" ? principal.id : undefined,
-      req.ip ?? "unknown",
-    );
+    const principal: Principal | undefined = getPrincipal(req);
+    const key = deriveRateLimitKey(principal, "global", req.ip ?? "unknown");
 
     const bucket = getOrCreate(key, windowMs);
     bucket.count += 1;

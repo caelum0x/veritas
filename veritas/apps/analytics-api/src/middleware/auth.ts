@@ -54,7 +54,7 @@ export function makeAuthMiddleware(authenticator: Authenticator) {
 export function requireScope(scope: Scope) {
   return function scopeGuard(req: Request, res: Response, next: NextFunction): void {
     const principal = req.principal;
-    if (!principal || !hasScope(principal.scopes as Scope[], scope)) {
+    if (!principal || !hasScope(principal, scope)) {
       res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: `Required scope: ${scope}` } });
       return;
     }

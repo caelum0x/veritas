@@ -1,7 +1,6 @@
 // Zod schemas for dashboard HTTP request/response validation.
 import { z } from "zod";
 import { VisibilitySchema, RefreshIntervalSchema, GridPositionSchema } from "@veritas/dashboards";
-import { AnalyticsReportPeriodSchema } from "@veritas/analytics";
 
 export const CreateDashboardBodySchema = z.object({
   title: z.string().min(1).max(200),

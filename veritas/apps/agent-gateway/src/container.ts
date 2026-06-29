@@ -8,14 +8,18 @@ import {
   type HealthCheck,
 } from "@veritas/observability";
 import {
-  agentCardBuilder,
   headerApiKeyAuth,
   noAuth,
-  type AgentCard as BuilderAgentCard,
+  makeAgentCard,
+  makeSkill,
+  makeCapability,
+  makeEndpoint,
+  type AgentCard,
 } from "@veritas/agent-card";
 import {
-  makeAgentCard,
+  makeAgentCard as makeA2AAgentCard,
   type A2AAgentCard,
+  type CapBridgeConfig,
 } from "@veritas/a2a-protocol";
 import {
   makeCapMetrics,
@@ -29,7 +33,9 @@ import {
   runVerification,
   type EngineOptions,
 } from "@veritas/verification";
+import { AnthropicProvider } from "@veritas/llm";
 import type { AppConfig } from "./config.js";
+import type { AgentCardConfig } from "./features/agent-card/agent-card.service.js";
 
 export interface Deps {
   readonly config: AppConfig;
@@ -37,10 +43,13 @@ export interface Deps {
   readonly metricsRegistry: MetricsRegistry;
   readonly capMetricsRecorder: MetricsRecorder;
   readonly capPolicyConfig: NegotiationPolicyConfig;
-  readonly builderAgentCard: BuilderAgentCard;
   readonly a2aAgentCard: A2AAgentCard;
   readonly runVerification: typeof runVerification;
   readonly healthChecks: readonly HealthCheck[];
+  readonly engineOptions: EngineOptions;
+  readonly capBridgeConfig: CapBridgeConfig;
+  readonly agentCardConfig: AgentCardConfig;
+  readonly registryCard: AgentCard;
 }
 
 /** Instantiate all services and wire them into a Deps object. */
@@ -60,52 +69,8 @@ export function buildContainer(config: AppConfig): Deps {
     maxClaims: config.capMaxClaims,
   };
 
-  // Build the @veritas/agent-card AgentCard via the fluent builder
-  const cardResult = agentCardBuilder()
-    .withId(config.agentId)
-    .withName(config.agentName)
-    .withDescription(
-      "Enterprise fact-verification and source-provenance platform. " +
-        "Submit text for claim extraction, research, and verdicts backed by cited evidence."
-    )
-    .withVersion(config.agentVersion)
-    .withProtocolVersion("1.0")
-    .withMaturity("stable")
-    .withRuntime("cloud")
-    .withUrl(config.agentBaseUrl)
-    .withContact({ name: "Veritas Team", email: "ops@veritas.croo.ai" })
-    .withDefaultAuth(headerApiKeyAuth(config.apiKeyHeader, "API key for authenticated endpoints"))
-    .addEndpoint({
-      name: "a2a",
-      url: `${config.agentBaseUrl}/a2a`,
-      protocol: "https",
-      auth: headerApiKeyAuth(config.apiKeyHeader),
-      description: "A2A task submission and management",
-    })
-    .addEndpoint({
-      name: "agent-card",
-      url: `${config.agentBaseUrl}/agent-card`,
-      protocol: "https",
-      auth: { type: "none" as const },
-      description: "Agent card discovery endpoint",
-    })
-    .addEndpoint({
-      name: "health",
-      url: `${config.agentBaseUrl}/health`,
-      protocol: "https",
-      auth: { type: "none" as const },
-      description: "Liveness and readiness probes",
-    })
-    .build();
-
-  if (!cardResult.ok) {
-    throw cardResult.error;
-  }
-
-  const builderAgentCard = cardResult.value;
-
   // Build the @veritas/a2a-protocol A2AAgentCard for inter-agent communication
-  const a2aAgentCard: A2AAgentCard = makeAgentCard({
+  const a2aAgentCard: A2AAgentCard = makeA2AAgentCard({
     agentId: config.agentId,
     name: config.agentName,
     description:
@@ -143,6 +108,112 @@ export function buildContainer(config: AppConfig): Deps {
     updatedAt: new Date().toISOString(),
   });
 
+  // Build the CAP bridge config using the a2a agent card
+  const capBridgeConfig: CapBridgeConfig = {
+    selfCard: a2aAgentCard,
+    maxBudgetUsdc: config.capMaxBudgetUsdc,
+    capEndpoint: config.capEndpoint,
+  };
+
+  // Build the LLM provider and engine options
+  const llm = new AnthropicProvider({
+    apiKey: config.anthropicApiKey,
+    baseUrl: "https://api.anthropic.com",
+    model: config.anthropicModel,
+    fastModel: config.anthropicFastModel,
+    maxTokens: config.anthropicMaxTokens,
+    temperature: 0.2,
+    concurrency: config.anthropicConcurrency,
+    timeoutMs: 120_000,
+    maxRetries: 3,
+    promptCaching: true,
+  });
+
+  const engineOptions: EngineOptions = {
+    llm,
+    logger: logger.child({ module: "verification" }),
+    concurrency: config.verificationConcurrency,
+    maxClaims: config.verificationMaxClaims,
+  };
+
+  // Build the agent card config for the agent-card feature
+  const agentCardConfig: AgentCardConfig = {
+    agentId: config.agentId,
+    name: config.agentName,
+    description:
+      "Enterprise fact-verification and source-provenance platform. " +
+        "Submit text for claim extraction, research, and verdicts backed by cited evidence.",
+    version: config.agentVersion,
+    publicUrl: config.agentBaseUrl,
+    contactEmail: "ops@veritas.croo.ai",
+  };
+
+  // Build the registry-format agent card (full AgentCard with skills and capabilities)
+  const registryCard: AgentCard = makeAgentCard({
+    schemaVersion: "1.0",
+    id: config.agentId,
+    name: config.agentName,
+    description:
+      "Enterprise fact-verification and source-provenance platform. " +
+        "Submit text for claim extraction, research, and verdicts backed by cited evidence.",
+    version: config.agentVersion,
+    url: config.agentBaseUrl,
+    defaultAuth: [headerApiKeyAuth(config.apiKeyHeader, "API key for authenticated endpoints")],
+    endpoints: [
+      makeEndpoint({
+        name: "a2a",
+        url: `${config.agentBaseUrl}/a2a`,
+        protocol: "https",
+        auth: headerApiKeyAuth(config.apiKeyHeader),
+        description: "A2A task submission and management",
+      }),
+      makeEndpoint({
+        name: "agent-card",
+        url: `${config.agentBaseUrl}/agent-card`,
+        protocol: "https",
+        auth: noAuth(),
+        description: "Agent card discovery endpoint",
+      }),
+      makeEndpoint({
+        name: "health",
+        url: `${config.agentBaseUrl}/health`,
+        protocol: "https",
+        auth: noAuth(),
+        description: "Liveness and readiness probes",
+      }),
+    ],
+    skills: [
+      makeSkill({
+        id: "verify-text",
+        name: "Verify Text",
+        description: "Extract claims from free text and verify each against evidence sources.",
+        version: config.agentVersion,
+        inputModes: ["text"],
+        outputModes: ["json"],
+        endpointName: "a2a",
+      }),
+      makeSkill({
+        id: "verify-claims",
+        name: "Verify Claims",
+        description: "Verify a list of explicit claims against evidence sources.",
+        version: config.agentVersion,
+        inputModes: ["json"],
+        outputModes: ["json"],
+        endpointName: "a2a",
+      }),
+    ],
+    capabilities: [
+      makeCapability({
+        id: "fact-verification",
+        name: "Fact Verification",
+        description: "Claim extraction, research, and adjudication with cited evidence.",
+        kind: "verification",
+        skillIds: ["verify-text", "verify-claims"],
+      }),
+    ],
+    updatedAt: new Date().toISOString(),
+  });
+
   const healthChecks: readonly HealthCheck[] = [
     new AlwaysHealthyCheck("agent-gateway"),
   ];
@@ -159,9 +230,12 @@ export function buildContainer(config: AppConfig): Deps {
     metricsRegistry,
     capMetricsRecorder,
     capPolicyConfig,
-    builderAgentCard,
     a2aAgentCard,
     runVerification,
     healthChecks,
+    engineOptions,
+    capBridgeConfig,
+    agentCardConfig,
+    registryCard,
   };
 }

@@ -12,7 +12,7 @@ export interface OrderResponse {
   readonly status: string;
   readonly price: { amount: string; currency: string };
   readonly settlementId: string | null;
-  readonly metadata?: Record<string, string>;
+  readonly metadata?: Record<string, unknown>;
   readonly createdAt: string;
   readonly updatedAt: string;
 }

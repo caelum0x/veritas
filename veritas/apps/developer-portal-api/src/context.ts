@@ -39,10 +39,10 @@ export function getRequestContext(req: Request): RequestContext | undefined {
 }
 
 export function setRequestContext(req: Request, ctx: RequestContext): void {
-  (req as Record<string, unknown>)["context"] = ctx;
+  (req as unknown as Record<string, unknown>)["context"] = ctx;
 }
 
 export function enrichContext(req: Request, patch: Partial<RequestContext>): void {
   const existing = req.context ?? buildRequestContext(req);
-  (req as Record<string, unknown>)["context"] = { ...existing, ...patch };
+  (req as unknown as Record<string, unknown>)["context"] = { ...existing, ...patch };
 }

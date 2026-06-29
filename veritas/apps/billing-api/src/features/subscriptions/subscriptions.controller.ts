@@ -1,7 +1,7 @@
 // Subscription controller: validates requests, calls SubscriptionService, sends HTTP responses.
 
 import type { Request, Response } from "express";
-import { apiSuccess, apiFailure, makePage, isErr } from "@veritas/core";
+import { apiSuccess, apiFailure, makePage, isErr, type ErrorCode } from "@veritas/core";
 import {
   ListPlansQuerySchema,
   GetPlanParamsSchema,
@@ -51,7 +51,7 @@ export class SubscriptionsController {
     if (isErr(result)) {
       const status = result.error.name === "NotFoundError" ? 404 : 409;
       res.status(status).json(
-        apiFailure({ code: result.error.name.toUpperCase(), message: result.error.message }),
+        apiFailure({ code: result.error.name.toUpperCase() as ErrorCode, message: result.error.message }),
       );
       return;
     }

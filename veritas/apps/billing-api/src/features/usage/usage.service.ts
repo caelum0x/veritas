@@ -1,6 +1,6 @@
 // Usage service: records usage events and aggregates period totals via package flows.
 
-import { isErr, type Result, ok, err, type Id } from "@veritas/core";
+import { isErr, AppError, type Result, ok, err, type Id } from "@veritas/core";
 import { meterUsageFlow } from "@veritas/flows-commerce";
 import { aggregateUsage, filterByOrg, filterByPeriod } from "@veritas/billing";
 import type { UsageEvent } from "@veritas/usage-billing";
@@ -36,7 +36,7 @@ export class UsageService {
     );
 
     if (isErr(result)) {
-      this.deps.logger.warn("usage_service.record_failed", { error: result.error.message });
+      this.deps.logger.warn("usage_service.record_failed", { error: (result.error as AppError).message });
       return err(result.error);
     }
 

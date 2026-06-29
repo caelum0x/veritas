@@ -150,7 +150,7 @@ export class TaxService {
     const result = await this.deps.taxCalculator.calculate(amountBaseUnits, ctx);
 
     if (!result.ok) {
-      log.error("tax.calculate.failed", { error: result.error.message });
+      log.error("tax.calculate.failed", { error: (result.error as Error).message });
     } else {
       log.info("tax.calculate.complete", {
         effectiveRate: result.value.effectiveRate,

@@ -1,6 +1,5 @@
 // Builds the Express application: applies middleware stack, mounts router and error handler.
-import express, { type Express } from "express";
-import cors from "cors";
+import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import type { Deps } from "./container.js";
 import { buildRouter } from "./router.js";
 import { requestIdMiddleware } from "./middleware/request-id.js";
@@ -22,14 +21,18 @@ export function buildApp(deps: Deps): Express {
 
   app.use(securityHeadersMiddleware);
   app.use(requestIdMiddleware);
-  app.use(
-    cors({
-      origin: deps.config.corsOrigin,
-      methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "Idempotency-Key"],
-      exposedHeaders: ["X-Request-Id", "X-RateLimit-Limit", "X-RateLimit-Remaining"],
-    }),
-  );
+  app.use(function corsMiddleware(req: Request, res: Response, next: NextFunction): void {
+    const origin = deps.config.corsOrigin;
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Request-Id, Idempotency-Key");
+    res.setHeader("Access-Control-Expose-Headers", "X-Request-Id, X-RateLimit-Limit, X-RateLimit-Remaining");
+    if (req.method === "OPTIONS") {
+      res.status(204).end();
+      return;
+    }
+    next();
+  });
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: false, limit: "1mb" }));
   app.use(loggingMiddleware(deps.logger));

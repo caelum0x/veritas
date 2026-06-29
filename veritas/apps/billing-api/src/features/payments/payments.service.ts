@@ -1,6 +1,6 @@
 // Payments service: orchestrates charge and refund flows via @veritas/payments package flows.
 
-import { isErr, ok, type Result, type Id } from "@veritas/core";
+import { isErr, ok, AppError, type Result, type Id } from "@veritas/core";
 import { runCharge, runRefund } from "@veritas/payments";
 import type { Payment } from "@veritas/payments";
 import type { Deps } from "../../container.js";
@@ -43,7 +43,7 @@ export class PaymentsService {
     if (isErr(result)) {
       this.deps.logger.warn("payments_service.charge_failed", {
         orderId: body.orderId,
-        error: result.error.message,
+        error: (result.error as AppError).message,
       });
     } else {
       this.deps.logger.info("payments_service.charge_succeeded", {
@@ -70,7 +70,7 @@ export class PaymentsService {
     if (isErr(result)) {
       this.deps.logger.warn("payments_service.refund_failed", {
         paymentId: body.paymentId,
-        error: result.error.message,
+        error: (result.error as AppError).message,
       });
     } else {
       this.deps.logger.info("payments_service.refund_succeeded", {
@@ -90,7 +90,7 @@ export class PaymentsService {
     if (isErr(result)) {
       this.deps.logger.warn("payments_service.list_failed", {
         organizationId,
-        error: result.error.message,
+        error: (result.error as AppError).message,
       });
       return result;
     }

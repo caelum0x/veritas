@@ -17,10 +17,7 @@ import {
   InMemoryTrackingStore,
   Tracker,
 } from "@veritas/referrals";
-import {
-  InMemoryCouponStore,
-  type CouponStore,
-} from "@veritas/coupons";
+import { InMemoryCouponStore, type CouponStore } from "@veritas/coupons";
 import { InMemoryCampaignStore, type CampaignStore } from "@veritas/campaigns";
 import { createInMemoryLifecycleStore, type LifecycleStore } from "@veritas/lifecycle";
 import {

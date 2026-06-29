@@ -25,7 +25,7 @@ export class DashboardsController {
   listDashboards = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const query = DashboardListQuerySchema.parse(req.query);
-      const orgId = (query.orgId ?? req.principal?.organizationId) as string | undefined;
+      const orgId = (query.orgId ?? req.principal?.orgId) as string | undefined;
       if (!orgId) {
         res.status(400).json({ success: false, error: { code: "VALIDATION", message: "orgId is required" } });
         return;
@@ -57,7 +57,7 @@ export class DashboardsController {
   createDashboard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const body = CreateDashboardBodySchema.parse(req.body);
-      const orgId = (req.query["orgId"] ?? req.principal?.organizationId) as string | undefined;
+      const orgId = (req.query["orgId"] ?? req.principal?.orgId) as string | undefined;
       if (!orgId) {
         res.status(400).json({ success: false, error: { code: "VALIDATION", message: "orgId is required" } });
         return;

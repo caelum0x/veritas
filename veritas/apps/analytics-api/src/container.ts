@@ -3,6 +3,8 @@ import { createLogger } from "@veritas/observability";
 import { MetricsRegistry } from "@veritas/observability";
 import { AlwaysHealthyCheck } from "@veritas/observability";
 import type { Logger, HealthCheck } from "@veritas/observability";
+import type { EventBus, Unsubscribe } from "@veritas/core";
+import type { TableRef, RowRecord, LoadResult, QueryResult } from "@veritas/warehouse";
 import { InMemoryReportStore, InMemoryReportTemplateStore, InMemoryReportScheduleStore } from "@veritas/reporting";
 import type { ReportStore, ReportTemplateStore, ReportScheduleStore } from "@veritas/reporting";
 import { ApiKeyAuthenticator, createApiKeyHasher } from "@veritas/auth";
@@ -27,10 +29,10 @@ class InMemoryApiKeyStore implements ApiKeyStore {
 }
 
 /** Noop event bus — satisfies the EventBus port for flows-data flows. */
-function makeNoopEventBus() {
+function makeNoopEventBus(): EventBus {
   return {
     publish: async (_event: unknown): Promise<void> => undefined,
-    subscribe: (_type: string, _handler: unknown): void => undefined,
+    subscribe: (_type: string, _handler: unknown): Unsubscribe => () => undefined,
   };
 }
 
@@ -89,10 +91,10 @@ export function buildContainer(config: AnalyticsApiConfig): Deps {
   });
 
   const noopWarehousePort = {
-    load: async (_table: unknown, _rows: unknown[]): Promise<{ loaded: number; failed: number; errors: string[] }> =>
-      ({ loaded: 0, failed: 0, errors: [] }),
-    query: async (_table: unknown, _opts?: unknown): Promise<{ rows: unknown[]; total: number }> =>
-      ({ rows: [], total: 0 }),
+    load: async (_table: TableRef, _rows: readonly RowRecord[]): Promise<LoadResult> =>
+      ({ inserted: 0, failed: 0, errors: [] }),
+    query: async (_table: TableRef, _opts?: { limit?: number; offset?: number }): Promise<QueryResult> =>
+      ({ rows: [], totalRows: 0, executionMs: 0 }),
   };
 
   const usageRollupFlow = new UsageRollupFlow({

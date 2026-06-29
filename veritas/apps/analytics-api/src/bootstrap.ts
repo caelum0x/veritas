@@ -109,3 +109,6 @@ class InMemoryDashboardStore implements DashboardStore {
 export function buildDashboardStore(): DashboardStore {
   return new InMemoryDashboardStore();
 }
+
+/** Re-export for route files that import AppDeps from bootstrap. */
+export type { Deps as AppDeps } from "./container.js";

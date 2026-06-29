@@ -68,7 +68,7 @@ export function createMocksService(deps: Deps): MocksService {
       });
 
       registryRef.current = registerMock(registryRef.current, def);
-      logger.info({ mockId: def.id }, "Mock registered");
+      logger.info("Mock registered", { mockId: def.id });
       return def;
     },
 
@@ -98,7 +98,7 @@ export function createMocksService(deps: Deps): MocksService {
 
       registryRef.current = unregisterMock(registryRef.current, mockId);
       registryRef.current = registerMock(registryRef.current, updated);
-      logger.info({ mockId }, "Mock updated");
+      logger.info("Mock updated", { mockId });
       return updated;
     },
 
@@ -106,7 +106,7 @@ export function createMocksService(deps: Deps): MocksService {
       const existing = getMock(registryRef.current, mockId);
       if (!existing) throw new MockNotFoundError("*", mockId);
       registryRef.current = unregisterMock(registryRef.current, mockId);
-      logger.info({ mockId }, "Mock deleted");
+      logger.info("Mock deleted", { mockId });
     },
 
     resetCounts() {
@@ -133,7 +133,7 @@ export function createMocksService(deps: Deps): MocksService {
       });
 
       registryRef.current = registerScenario(registryRef.current, scenario);
-      logger.info({ scenarioId: scenario.id }, "Scenario created");
+      logger.info("Scenario created", { scenarioId: scenario.id });
       return scenario;
     },
 
@@ -149,7 +149,7 @@ export function createMocksService(deps: Deps): MocksService {
       const scenario = getRegScenario(scenarioId);
       const updated = activateScenario(scenario);
       registryRef.current = updateScenario(registryRef.current, updated);
-      logger.info({ scenarioId }, "Scenario activated");
+      logger.info("Scenario activated", { scenarioId });
       return updated;
     },
 
@@ -157,7 +157,7 @@ export function createMocksService(deps: Deps): MocksService {
       const scenario = getRegScenario(scenarioId);
       const updated = deactivateScenario(scenario);
       registryRef.current = updateScenario(registryRef.current, updated);
-      logger.info({ scenarioId }, "Scenario deactivated");
+      logger.info("Scenario deactivated", { scenarioId });
       return updated;
     },
 

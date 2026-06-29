@@ -1,8 +1,7 @@
 // HTTP controller for usage endpoints: validates requests, delegates to UsageService.
 
 import type { Request, Response } from "express";
-import { isErr } from "@veritas/core";
-import { apiSuccess, apiFailure } from "@veritas/core";
+import { isErr, AppError, apiSuccess, apiFailure } from "@veritas/core";
 import { UsageService } from "./usage.service.js";
 import {
   RecordUsageBodySchema,
@@ -24,9 +23,10 @@ export class UsageController {
 
     const result = await this.service.recordUsage(parsed.data);
     if (isErr(result)) {
-      const status = (result.error as { statusCode?: number }).statusCode ?? 500;
+      const e = result.error as AppError;
+      const status = e.status ?? 500;
       res.status(status).json(
-        apiFailure({ code: result.error.code ?? "INTERNAL", message: result.error.message }),
+        apiFailure({ code: e.code ?? "INTERNAL", message: e.message }),
       );
       return;
     }
@@ -46,7 +46,7 @@ export class UsageController {
     const result = this.service.listUsage(parsed.data);
     if (isErr(result)) {
       res.status(500).json(
-        apiFailure({ code: "INTERNAL", message: result.error.message }),
+        apiFailure({ code: "INTERNAL", message: (result.error as AppError).message }),
       );
       return;
     }

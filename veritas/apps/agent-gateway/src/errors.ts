@@ -4,7 +4,6 @@ import { AppError, type AppErrorOptions } from "@veritas/core";
 
 /** Error raised when the gateway cannot parse an inbound request. */
 export class GatewayRequestError extends AppError {
-  readonly code = "GATEWAY_REQUEST_ERROR" as const;
   constructor(message: string, opts?: AppErrorOptions) {
     super("VALIDATION", 400, message, opts);
     this.name = "GatewayRequestError";
@@ -13,7 +12,6 @@ export class GatewayRequestError extends AppError {
 
 /** Error raised when the gateway cannot reach a downstream service. */
 export class GatewayUpstreamError extends AppError {
-  readonly code = "GATEWAY_UPSTREAM_ERROR" as const;
   constructor(message: string, opts?: AppErrorOptions) {
     super("UNAVAILABLE", 502, message, opts);
     this.name = "GatewayUpstreamError";
@@ -22,7 +20,6 @@ export class GatewayUpstreamError extends AppError {
 
 /** Error raised when the gateway rejects a request due to auth failure. */
 export class GatewayAuthError extends AppError {
-  readonly code = "GATEWAY_AUTH_ERROR" as const;
   constructor(message: string, opts?: AppErrorOptions) {
     super("UNAUTHORIZED", 401, message, opts);
     this.name = "GatewayAuthError";
@@ -31,7 +28,6 @@ export class GatewayAuthError extends AppError {
 
 /** Error raised when a CAP negotiation with a provider fails. */
 export class GatewayCapError extends AppError {
-  readonly code = "GATEWAY_CAP_ERROR" as const;
   constructor(message: string, opts?: AppErrorOptions) {
     super("UNAVAILABLE", 502, message, opts);
     this.name = "GatewayCapError";
@@ -40,7 +36,6 @@ export class GatewayCapError extends AppError {
 
 /** Error raised when the gateway config is missing required values. */
 export class GatewayConfigError extends AppError {
-  readonly code = "GATEWAY_CONFIG_ERROR" as const;
   constructor(message: string, opts?: AppErrorOptions) {
     super("INTERNAL", 500, message, opts);
     this.name = "GatewayConfigError";
@@ -49,7 +44,6 @@ export class GatewayConfigError extends AppError {
 
 /** Error raised when a resource is not found. */
 export class GatewayNotFoundError extends AppError {
-  readonly code = "GATEWAY_NOT_FOUND" as const;
   constructor(message: string, opts?: AppErrorOptions) {
     super("NOT_FOUND", 404, message, opts);
     this.name = "GatewayNotFoundError";
@@ -58,7 +52,6 @@ export class GatewayNotFoundError extends AppError {
 
 /** Error raised when the request is rate-limited. */
 export class GatewayRateLimitError extends AppError {
-  readonly code = "GATEWAY_RATE_LIMITED" as const;
   constructor(message = "Rate limit exceeded", opts?: AppErrorOptions) {
     super("RATE_LIMITED", 429, message, opts);
     this.name = "GatewayRateLimitError";

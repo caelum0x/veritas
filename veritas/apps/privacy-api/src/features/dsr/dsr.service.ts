@@ -1,7 +1,8 @@
 // DSR service: orchestrates DSR lifecycle via @veritas/gdpr store, identity verification, and compliance flows.
 
 import { ok, err, isOk, type Result } from "@veritas/core";
-import type { Clock, Logger, EventBus } from "@veritas/core";
+import type { Clock } from "@veritas/core";
+import type { Logger } from "@veritas/observability";
 import {
   type DsrRequest,
   type DsrStatus,

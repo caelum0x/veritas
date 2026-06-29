@@ -96,8 +96,8 @@ export class SloFeatureService {
     const evalResult = await evaluateSlo(
       {
         slo,
-        objective: { targetRatio: slo.targetRatio },
-        window: { durationMs: slo.windowDurationMs },
+        objective: { targetRatio: slo.targetRatio, operator: "gte" },
+        window: { startMs: nowMs - slo.windowDurationMs, endMs: nowMs, durationMs: slo.windowDurationMs },
         nowMs,
       },
       source,

@@ -41,6 +41,10 @@ import {
 } from "./incidents.mapper.js";
 import type { IncidentsDeps } from "./incidents.service.js";
 
+function errMsg(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
+
 function notFound(res: Response, msg: string): void {
   res.status(404).json({ success: false, error: { message: msg } });
 }
@@ -64,7 +68,7 @@ export async function handleCreateIncident(
     const parsed = CreateIncidentSchema.safeParse(req.body);
     if (!parsed.success) { badRequest(res, parsed.error.message); return; }
     const result = await createIncident(deps, parsed.data);
-    if (isErr(result)) { serverError(res, result.error.message); return; }
+    if (isErr(result)) { serverError(res, errMsg(result.error)); return; }
     res.status(201).json({ success: true, data: mapIncident(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -79,8 +83,9 @@ export async function handleListIncidents(
   try {
     const parsed = ListIncidentsQuerySchema.safeParse(req.query);
     if (!parsed.success) { badRequest(res, parsed.error.message); return; }
-    const result = await listIncidents(deps, parsed.data);
-    if (isErr(result)) { serverError(res, result.error.message); return; }
+    const filter = parsed.data as Parameters<typeof listIncidents>[1];
+    const result = await listIncidents(deps, filter);
+    if (isErr(result)) { serverError(res, errMsg(result.error)); return; }
     const { items, total } = result.value;
     res.json({ success: true, data: { items: items.map(mapIncident), total } });
   } catch (cause) { next(cause); }
@@ -97,7 +102,7 @@ export async function handleGetIncident(
     const parsed = IncidentIdParamsSchema.safeParse(req.params);
     if (!parsed.success) { badRequest(res, parsed.error.message); return; }
     const result = await getIncident(deps, parsed.data.id);
-    if (isErr(result)) { notFound(res, result.error.message); return; }
+    if (isErr(result)) { notFound(res, errMsg(result.error)); return; }
     res.json({ success: true, data: mapIncident(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -115,7 +120,7 @@ export async function handleUpdateIncident(
     const bodyParsed = UpdateIncidentSchema.safeParse(req.body);
     if (!bodyParsed.success) { badRequest(res, bodyParsed.error.message); return; }
     const result = await updateIncident(deps, paramsParsed.data.id, bodyParsed.data);
-    if (isErr(result)) { notFound(res, result.error.message); return; }
+    if (isErr(result)) { notFound(res, errMsg(result.error)); return; }
     res.json({ success: true, data: mapIncident(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -138,7 +143,7 @@ export async function handleTransitionStatus(
       bodyParsed.data.status,
       bodyParsed.data.actorId,
     );
-    if (isErr(result)) { badRequest(res, result.error.message); return; }
+    if (isErr(result)) { badRequest(res, errMsg(result.error)); return; }
     res.json({ success: true, data: mapIncident(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -161,7 +166,7 @@ export async function handleAssignResponder(
       bodyParsed.data.responderId,
       bodyParsed.data.actorId,
     );
-    if (isErr(result)) { notFound(res, result.error.message); return; }
+    if (isErr(result)) { notFound(res, errMsg(result.error)); return; }
     res.json({ success: true, data: mapIncident(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -178,7 +183,7 @@ export async function handleRemoveResponder(
     if (!parsed.success) { badRequest(res, parsed.error.message); return; }
     const actorId = typeof req.body?.actorId === "string" ? req.body.actorId : "system";
     const result = await removeResponder(deps, parsed.data.id, parsed.data.responderId, actorId);
-    if (isErr(result)) { notFound(res, result.error.message); return; }
+    if (isErr(result)) { notFound(res, errMsg(result.error)); return; }
     res.json({ success: true, data: mapIncident(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -199,7 +204,7 @@ export async function handleAddTimelineEntry(
     });
     if (!bodyParsed.success) { badRequest(res, bodyParsed.error.message); return; }
     const result = await addTimelineEntry(deps, bodyParsed.data);
-    if (isErr(result)) { serverError(res, result.error.message); return; }
+    if (isErr(result)) { serverError(res, errMsg(result.error)); return; }
     res.status(201).json({ success: true, data: mapTimelineEntry(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -215,7 +220,7 @@ export async function handleGetTimeline(
     const parsed = IncidentIdParamsSchema.safeParse(req.params);
     if (!parsed.success) { badRequest(res, parsed.error.message); return; }
     const result = await getTimeline(deps, parsed.data.id);
-    if (isErr(result)) { notFound(res, result.error.message); return; }
+    if (isErr(result)) { notFound(res, errMsg(result.error)); return; }
     res.json({ success: true, data: { items: result.value.map(mapTimelineEntry), total: result.value.length } });
   } catch (cause) { next(cause); }
 }
@@ -236,7 +241,7 @@ export async function handleCreatePostmortem(
     });
     if (!bodyParsed.success) { badRequest(res, bodyParsed.error.message); return; }
     const result = await createPostmortem(deps, bodyParsed.data);
-    if (isErr(result)) { serverError(res, result.error.message); return; }
+    if (isErr(result)) { serverError(res, errMsg(result.error)); return; }
     res.status(201).json({ success: true, data: mapPostmortem(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -252,7 +257,7 @@ export async function handleGetPostmortem(
     const parsed = IncidentIdParamsSchema.safeParse(req.params);
     if (!parsed.success) { badRequest(res, parsed.error.message); return; }
     const result = await getPostmortem(deps, parsed.data.id);
-    if (isErr(result)) { notFound(res, result.error.message); return; }
+    if (isErr(result)) { notFound(res, errMsg(result.error)); return; }
     res.json({ success: true, data: mapPostmortem(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -267,8 +272,8 @@ export async function handleUpdatePostmortem(
   try {
     const parsed = IncidentIdParamsSchema.safeParse(req.params);
     if (!parsed.success) { badRequest(res, parsed.error.message); return; }
-    const result = await updatePostmortem(deps, parsed.data.id, req.body as Record<string, unknown>);
-    if (isErr(result)) { notFound(res, result.error.message); return; }
+    const result = await updatePostmortem(deps, parsed.data.id, req.body as Parameters<typeof updatePostmortem>[2]);
+    if (isErr(result)) { notFound(res, errMsg(result.error)); return; }
     res.json({ success: true, data: mapPostmortem(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -284,8 +289,8 @@ export async function handleGetMetrics(
     const parsed = MetricsQuerySchema.safeParse(req.query);
     if (!parsed.success) { badRequest(res, parsed.error.message); return; }
     const { targetMttrMs, ...filter } = parsed.data;
-    const result = await getMetrics(deps, filter);
-    if (isErr(result)) { serverError(res, result.error.message); return; }
+    const result = await getMetrics(deps, filter as Parameters<typeof getMetrics>[1]);
+    if (isErr(result)) { serverError(res, errMsg(result.error)); return; }
     res.json({ success: true, data: mapMetrics(result.value) });
   } catch (cause) { next(cause); }
 }
@@ -302,7 +307,7 @@ export async function handleGetSloMetrics(
     if (!parsed.success) { badRequest(res, parsed.error.message); return; }
     const { targetMttrMs, from, to } = parsed.data;
     const result = await getSloMetrics(deps, { from, to }, targetMttrMs);
-    if (isErr(result)) { serverError(res, result.error.message); return; }
+    if (isErr(result)) { serverError(res, errMsg(result.error)); return; }
     res.json({ success: true, data: mapSloMetrics(result.value) });
   } catch (cause) { next(cause); }
 }

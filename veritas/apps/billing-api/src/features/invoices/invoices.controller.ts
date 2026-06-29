@@ -1,7 +1,7 @@
 // Invoice controller: validates requests, delegates to InvoiceService, sends HTTP responses.
 
 import type { Request, Response } from "express";
-import { apiSuccess, apiFailure, makePage, isErr } from "@veritas/core";
+import { apiSuccess, apiFailure, makePage, isErr, type ErrorCode } from "@veritas/core";
 import {
   GenerateInvoiceBodySchema,
   FinalizeInvoiceParamsSchema,
@@ -33,7 +33,7 @@ export class InvoicesController {
     if (isErr(result)) {
       const status = result.error.name === "NotFoundError" ? 404 : 422;
       res.status(status).json(
-        apiFailure({ code: result.error.name.toUpperCase(), message: result.error.message }),
+        apiFailure({ code: result.error.name.toUpperCase() as ErrorCode, message: result.error.message }),
       );
       return;
     }
@@ -85,7 +85,7 @@ export class InvoicesController {
     if (isErr(result)) {
       const status = result.error.name === "NotFoundError" ? 404 : 422;
       res.status(status).json(
-        apiFailure({ code: result.error.name.toUpperCase(), message: result.error.message }),
+        apiFailure({ code: result.error.name.toUpperCase() as ErrorCode, message: result.error.message }),
       );
       return;
     }
@@ -104,7 +104,7 @@ export class InvoicesController {
     if (isErr(result)) {
       const status = result.error.name === "NotFoundError" ? 404 : 422;
       res.status(status).json(
-        apiFailure({ code: result.error.name.toUpperCase(), message: result.error.message }),
+        apiFailure({ code: result.error.name.toUpperCase() as ErrorCode, message: result.error.message }),
       );
       return;
     }
@@ -123,7 +123,7 @@ export class InvoicesController {
     if (isErr(result)) {
       const status = result.error.name === "NotFoundError" ? 404 : 422;
       res.status(status).json(
-        apiFailure({ code: result.error.name.toUpperCase(), message: result.error.message }),
+        apiFailure({ code: result.error.name.toUpperCase() as ErrorCode, message: result.error.message }),
       );
       return;
     }
@@ -147,7 +147,7 @@ export class InvoicesController {
     if (isErr(result)) {
       const status = result.error.name === "NotFoundError" ? 404 : 422;
       res.status(status).json(
-        apiFailure({ code: result.error.name.toUpperCase(), message: result.error.message }),
+        apiFailure({ code: result.error.name.toUpperCase() as ErrorCode, message: result.error.message }),
       );
       return;
     }

@@ -13,8 +13,8 @@ export const UptimeResultSchema = z.object({
   componentId: z.string(),
   windowLabel: z.string(),
   uptimePercent: z.number().min(0).max(100),
-  totalSamples: z.number().int().nonneg(),
-  healthySamples: z.number().int().nonneg(),
+  totalSamples: z.number().int().nonnegative(),
+  healthySamples: z.number().int().nonnegative(),
 });
 
 export const ComponentStatusEntrySchema = z.object({
@@ -64,5 +64,5 @@ export const HealthSnapshotResponseSchema = z.object({
 
 export const SloListResponseSchema = z.object({
   items: z.array(SloSummarySchema),
-  total: z.number().int().nonneg(),
+  total: z.number().int().nonnegative(),
 });

@@ -3,7 +3,6 @@ import type { Request, Response, NextFunction } from "express";
 import { UnauthorizedError, ForbiddenError, epochToIso } from "@veritas/core";
 import { makeServiceContext } from "@veritas/services";
 import type { ServiceContext } from "@veritas/services";
-import type { ApiKeyService } from "@veritas/services";
 
 /** Shape of the authenticated request after successful key validation. */
 export interface AuthenticatedRequest extends Request {
@@ -12,6 +11,24 @@ export interface AuthenticatedRequest extends Request {
   readonly userId?: string;
   readonly scopes?: readonly string[];
   readonly serviceContext?: ServiceContext;
+}
+
+/** Principal info returned by a successful validateApiKey callback. */
+export interface ResolvedPrincipal {
+  readonly apiKeyId: string;
+  readonly orgId: string;
+  readonly userId?: string;
+  readonly scopes: string[];
+  readonly active: boolean;
+}
+
+/** Options accepted by createAuthMiddleware. */
+export interface AuthMiddlewareOptions {
+  /**
+   * Resolve a raw API key string to a principal, or return null if invalid.
+   * Implementations are responsible for any service calls needed.
+   */
+  readonly validateApiKey: (rawKey: string) => Promise<ResolvedPrincipal | null>;
 }
 
 function extractRawKey(req: Request): string | null {
@@ -30,21 +47,11 @@ function extractRawKey(req: Request): string | null {
   return null;
 }
 
-function buildSystemContext(req: Request): ServiceContext {
-  const requestId = (req.headers["x-request-id"] as string | undefined) ?? crypto.randomUUID();
-  return makeServiceContext(
-    { userId: "system", orgId: undefined, roles: ["system"], apiKeyId: undefined },
-    requestId,
-    requestId,
-    epochToIso(Date.now()),
-  );
-}
-
 /**
  * Factory that returns an Express middleware requiring a valid Veritas API key.
  * Attaches principal fields and a ServiceContext to the request on success.
  */
-export function createAuthMiddleware(apiKeyService: ApiKeyService) {
+export function createAuthMiddleware(options: AuthMiddlewareOptions) {
   return async function authMiddleware(
     req: Request,
     _res: Response,
@@ -57,43 +64,31 @@ export function createAuthMiddleware(apiKeyService: ApiKeyService) {
     }
 
     try {
-      const systemCtx = buildSystemContext(req);
-      const result = await apiKeyService.validateApiKey(systemCtx, { rawKey: raw });
+      const principal = await options.validateApiKey(raw);
 
-      if (!result.ok) {
-        next(new UnauthorizedError({ message: "API key validation failed." }));
-        return;
-      }
-
-      const { valid, apiKey } = result.value;
-      if (!valid || apiKey === null) {
+      if (principal === null || !principal.active) {
         next(new UnauthorizedError({ message: "Invalid or expired API key." }));
-        return;
-      }
-
-      if (apiKey.revokedAt !== null) {
-        next(new ForbiddenError({ message: "API key has been revoked." }));
         return;
       }
 
       const requestId = (req.headers["x-request-id"] as string | undefined) ?? crypto.randomUUID();
       const serviceContext = makeServiceContext(
         {
-          userId: apiKey.userId ?? apiKey.id,
-          orgId: apiKey.organizationId,
+          userId: principal.userId ?? principal.apiKeyId,
+          orgId: principal.orgId,
           roles: [],
-          apiKeyId: apiKey.id,
+          apiKeyId: principal.apiKeyId,
         },
         requestId,
         requestId,
         epochToIso(Date.now()),
       );
 
-      const mutableReq = req as Record<string, unknown>;
-      mutableReq["apiKeyId"] = apiKey.id;
-      mutableReq["orgId"] = apiKey.organizationId;
-      mutableReq["userId"] = apiKey.userId;
-      mutableReq["scopes"] = apiKey.scopes ?? [];
+      const mutableReq = req as unknown as Record<string, unknown>;
+      mutableReq["apiKeyId"] = principal.apiKeyId;
+      mutableReq["orgId"] = principal.orgId;
+      mutableReq["userId"] = principal.userId;
+      mutableReq["scopes"] = principal.scopes;
       mutableReq["serviceContext"] = serviceContext;
 
       next();

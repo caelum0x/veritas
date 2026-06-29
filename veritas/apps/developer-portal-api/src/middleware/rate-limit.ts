@@ -1,6 +1,6 @@
 // Token-bucket rate limiter middleware — keyed by IP or API key.
 import type { Request, Response, NextFunction, RequestHandler } from "express";
-import { deriveRateLimitKey } from "@veritas/auth";
+import { deriveRateLimitKey, type Principal } from "@veritas/auth";
 import type { AppConfig } from "../config.js";
 
 interface Bucket {
@@ -9,9 +9,9 @@ interface Bucket {
 }
 
 function getRateLimitKey(req: Request): string {
-  const principal = (req as Record<string, unknown>)["principal"];
-  if (principal && typeof principal === "object" && "id" in principal) {
-    return deriveRateLimitKey(principal as { id: string; kind: string }, req.ip ?? "");
+  const principal = (req as unknown as Record<string, unknown>)["principal"];
+  if (principal && typeof principal === "object" && "id" in principal && "kind" in principal) {
+    return deriveRateLimitKey(principal as Principal, "global", req.ip ?? "");
   }
   return req.ip ?? "unknown";
 }

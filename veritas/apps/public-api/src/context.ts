@@ -48,12 +48,12 @@ export function serviceContextFromRequest(req: Request): ServiceContext {
 
 /** Attach a ServiceContext onto an Express request object. */
 export function attachServiceContext(req: Request, ctx: ServiceContext): void {
-  (req as Record<string, unknown>)["serviceContext"] = ctx;
+  (req as unknown as Record<string, unknown>)["serviceContext"] = ctx;
 }
 
 /** Retrieve an already-attached ServiceContext from the request. */
 export function getServiceContext(req: Request): ServiceContext {
-  const ctx = (req as Record<string, unknown>)["serviceContext"] as ServiceContext | undefined;
+  const ctx = (req as unknown as Record<string, unknown>)["serviceContext"] as ServiceContext | undefined;
   if (ctx === undefined) {
     return anonymousContext(req);
   }

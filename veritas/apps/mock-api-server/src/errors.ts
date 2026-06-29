@@ -19,7 +19,7 @@ export function toHttpError(err: unknown): HttpError {
   if (err instanceof HttpError) return err;
   if (isAppError(err)) {
     return new HttpError(
-      err.statusCode,
+      err.status,
       err.code,
       err.message,
       (err as AppError & { details?: unknown }).details,

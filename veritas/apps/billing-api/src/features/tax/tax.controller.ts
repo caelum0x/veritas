@@ -40,7 +40,7 @@ export class TaxController {
       );
 
       if (!result.ok) {
-        throw ApiError.unprocessable(result.error.message);
+        throw ApiError.unprocessable((result.error as Error).message);
       }
 
       respondOk(res, toTaxResultDto(result.value));
@@ -64,7 +64,7 @@ export class TaxController {
 
       const result = await this.service.createRegistration(body.data);
       if (!result.ok) {
-        throw ApiError.unprocessable(result.error.message);
+        throw ApiError.unprocessable((result.error as Error).message);
       }
 
       respondCreated(res, toTaxRegistrationDto(result.value));
@@ -173,7 +173,7 @@ export class TaxController {
 
       const result = await this.service.createExemption(body.data);
       if (!result.ok) {
-        throw ApiError.unprocessable(result.error.message);
+        throw ApiError.unprocessable((result.error as Error).message);
       }
 
       respondCreated(res, toExemptionDto(result.value));
@@ -227,7 +227,7 @@ export class TaxController {
       );
 
       if (!result.ok) {
-        throw ApiError.unprocessable(result.error.message);
+        throw ApiError.unprocessable((result.error as Error).message);
       }
 
       respondOk(res, result.value ? toExemptionDto(result.value) : null);

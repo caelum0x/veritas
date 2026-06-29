@@ -1,6 +1,10 @@
 // Partners service — orchestrates partner CRUD, agreements, contacts, and onboarding via PartnerService
 import type { Result } from "@veritas/core";
 import { isErr } from "@veritas/core";
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
 import {
   PartnerService,
   type Partner,
@@ -42,7 +46,7 @@ export class PartnersService {
 
   async createPartner(input: CreatePartner): Promise<Result<Partner>> {
     const result = await this.svc.createPartner(input, this.now());
-    if (isErr(result)) this.logger.warn("createPartner failed", { error: result.error.message });
+    if (isErr(result)) this.logger.warn("createPartner failed", { error: errorMessage(result.error) });
     return result;
   }
 
@@ -60,7 +64,7 @@ export class PartnersService {
 
   async updatePartner(id: string, update: UpdatePartner): Promise<Result<Partner>> {
     const result = await this.svc.updatePartner(id, update, this.now());
-    if (isErr(result)) this.logger.warn("updatePartner failed", { id, error: result.error.message });
+    if (isErr(result)) this.logger.warn("updatePartner failed", { id, error: errorMessage(result.error) });
     return result;
   }
 

@@ -14,8 +14,8 @@ export function errorHandlerMiddleware(logger: Logger) {
     _next: NextFunction,
   ): void => {
     if (isAppError(err)) {
-      logger.warn("App error", { code: err.code, message: err.message, status: err.statusCode });
-      res.status(err.statusCode).json({
+      logger.warn("App error", { code: err.code, message: err.message, status: err.status });
+      res.status(err.status).json({
         success: false,
         data: null,
         error: { code: err.code, message: err.message },

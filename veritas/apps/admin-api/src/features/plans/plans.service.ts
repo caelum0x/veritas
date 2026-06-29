@@ -43,13 +43,13 @@ export class PlansService {
       limit: query.limit,
     });
     if (!result.ok) return result;
-    const page = result.value as Page<{ id: string; slug: string; name: string; price: { currency: "USDC"; amount: string }; interval: string; includedVerifications: number; overagePrice: { currency: "USDC"; amount: string } | null; active: boolean; createdAt: string; updatedAt: string }>;
+    const page = result.value;
     return {
       ok: true,
       value: {
         items: page.items.map(toPlanResponse),
         nextCursor: page.nextCursor ?? null,
-        total: page.total,
+        total: 0,
       },
     };
   }

@@ -23,6 +23,9 @@ const ConfigSchema = z.object({
 
 export type AppConfig = z.infer<typeof ConfigSchema>;
 
+/** Subset of AppConfig consumed by StatusService. */
+export type StatusPageConfig = Pick<AppConfig, "version" | "maxIncidents">;
+
 export function loadConfig(): AppConfig {
   return ConfigSchema.parse({
     port: process.env["STATUS_PAGE_PORT"] ?? process.env["PORT"],

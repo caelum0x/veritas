@@ -1,14 +1,13 @@
-// Application-level error types extending AppError from @veritas/core.
-import { AppError } from "@veritas/core";
+// Application-level error types for HTTP responses.
 
-export class HttpError extends AppError {
+export class HttpError extends Error {
   constructor(
     readonly statusCode: number,
     message: string,
-    code: string,
-    details?: Record<string, unknown>,
+    readonly code: string,
+    readonly details?: Record<string, unknown>,
   ) {
-    super(message, { code, details });
+    super(message);
     this.name = "HttpError";
   }
 }

@@ -1,5 +1,6 @@
 // Maps WebhookOutput and WebhookDeliveryOutput domain objects to HTTP response shapes.
-import type { WebhookOutput, WebhookDeliveryOutput } from "@veritas/services";
+import type { WebhookOutput } from "@veritas/services";
+import type { WebhookDeliveryOutput } from "@veritas/services/webhook/webhook.dto.js";
 import type { Page } from "@veritas/core";
 
 /** HTTP response shape for a single webhook subscription. */
@@ -11,7 +12,7 @@ export interface WebhookResponse {
   readonly secret: string;
   readonly active: boolean;
   readonly description: string | null;
-  readonly metadata?: Record<string, string>;
+  readonly metadata?: Record<string, unknown>;
   readonly createdAt: string;
   readonly updatedAt: string;
 }

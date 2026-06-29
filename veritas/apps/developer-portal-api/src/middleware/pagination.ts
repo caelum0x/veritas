@@ -28,7 +28,7 @@ export function paginationMiddleware(): RequestHandler {
       : DEFAULT_PAGE_SIZE;
     const offset = (page - 1) * limit;
 
-    (req as Record<string, unknown>)["pagination"] = { page, limit, offset };
+    (req as unknown as Record<string, unknown>)["pagination"] = { page, limit, offset };
     next();
   };
 }

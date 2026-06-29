@@ -1,6 +1,6 @@
 // Maps domain Usage entities and summary outputs to API response shapes.
 import type { Usage } from "@veritas/contracts";
-import type { UsageSummaryOutput } from "@veritas/services";
+import type { UsageSummaryOutput } from "@veritas/services/usage-metering/usage-metering.dto.js";
 
 export interface UsageResponse {
   readonly id: string;
@@ -10,7 +10,7 @@ export interface UsageResponse {
   readonly quantity: number;
   readonly recordedAt: string;
   readonly idempotencyKey: string | null;
-  readonly metadata: Record<string, string> | undefined;
+  readonly metadata: Record<string, unknown> | undefined;
   readonly createdAt: string;
   readonly updatedAt: string;
 }

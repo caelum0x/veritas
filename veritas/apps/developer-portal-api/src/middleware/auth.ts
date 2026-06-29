@@ -8,6 +8,17 @@ import {
 } from "@veritas/auth";
 import { UnauthorizedError, ForbiddenError } from "@veritas/core";
 
+/**
+ * Express Request augmented with portal auth fields set by the auth middleware.
+ * Controllers cast `req` to this type to access identity fields.
+ */
+export interface PortalAuthRequest extends Request {
+  principal?: Principal;
+  orgId?: string;
+  userId?: string;
+  portalAppId?: string;
+}
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
@@ -56,7 +67,7 @@ export function createAuthMiddleware(authenticator: ApiKeyAuthenticator) {
       return;
     }
 
-    (req as Record<string, unknown>)["principal"] = result.value;
+    (req as unknown as Record<string, unknown>)["principal"] = result.value;
     next();
   };
 }
@@ -68,7 +79,7 @@ export function requireScope(scope: string) {
       next(new UnauthorizedError({ message: "Authentication required" }));
       return;
     }
-    const hasScope = principal.scopes.some((s) => s === scope || s === "*");
+    const hasScope = principal.scopes.some((s) => s === scope || (s as string) === "*");
     if (!hasScope) {
       next(new ForbiddenError({ message: `Scope '${scope}' required` }));
       return;

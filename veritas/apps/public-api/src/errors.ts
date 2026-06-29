@@ -16,14 +16,9 @@ export function appErrorToCode(err: AppError): ErrorCode {
 export function normalizeError(thrown: unknown): AppError {
   if (isAppError(thrown)) return thrown;
   if (thrown instanceof Error) {
-    return new AppError({
-      code: "INTERNAL",
-      message: thrown.message,
-      status: 500,
-      cause: thrown,
-    });
+    return new AppError("INTERNAL", 500, thrown.message, { cause: thrown });
   }
-  return new AppError({ code: "INTERNAL", message: "An unexpected error occurred", status: 500 });
+  return new AppError("INTERNAL", 500, "An unexpected error occurred");
 }
 
 export { AppError, isAppError };

@@ -1,5 +1,5 @@
 // Maps domain ReportView projections to HTTP response shapes.
-import type { ReportView, ReportClaimView, ReportVerdictCountsView } from "@veritas/services";
+import type { ReportView } from "@veritas/services";
 
 /** HTTP response shape for a single verification report. */
 export interface ReportResponse {

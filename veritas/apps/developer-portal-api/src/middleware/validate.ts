@@ -25,7 +25,7 @@ export function validateBody<T>(schema: ZodSchema<T>): RequestHandler {
       });
       return;
     }
-    (req as Record<string, unknown>)["validatedBody"] = result.data;
+    (req as unknown as Record<string, unknown>)["validatedBody"] = result.data;
     next();
   };
 }
@@ -44,7 +44,7 @@ export function validateQuery<T>(schema: ZodSchema<T>): RequestHandler {
       });
       return;
     }
-    (req as Record<string, unknown>)["validatedQuery"] = result.data;
+    (req as unknown as Record<string, unknown>)["validatedQuery"] = result.data;
     next();
   };
 }
@@ -63,7 +63,7 @@ export function validateParams<T>(schema: ZodSchema<T>): RequestHandler {
       });
       return;
     }
-    (req as Record<string, unknown>)["validatedParams"] = result.data;
+    (req as unknown as Record<string, unknown>)["validatedParams"] = result.data;
     next();
   };
 }

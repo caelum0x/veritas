@@ -99,7 +99,7 @@ export class InboundService {
               };
             } catch (e) {
               return {
-                statusCode: null,
+                statusCode: 0,
                 success: false,
                 responseBody: null,
                 error: e instanceof Error ? e.message : String(e),

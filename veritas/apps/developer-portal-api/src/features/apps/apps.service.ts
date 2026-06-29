@@ -1,5 +1,9 @@
 // Apps feature service — delegates create/read/update/lifecycle operations to PortalService
 import { isErr, type Result } from "@veritas/core";
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
 import {
   type PortalService,
   type DeveloperApp,
@@ -47,7 +51,7 @@ export class AppsService {
     this.log.info("AppsService.createApp", { organizationId: body.organizationId, name: body.name });
     const result = await this.svc.createApp(input);
     if (isErr(result)) {
-      this.log.warn("AppsService.createApp failed", { error: result.error.message });
+      this.log.warn("AppsService.createApp failed", { error: errorMessage(result.error) });
     }
     return result;
   }
@@ -64,7 +68,7 @@ export class AppsService {
     this.log.info("AppsService.updateApp", { id });
     const result = await this.svc.updateApp(id, patch);
     if (isErr(result)) {
-      this.log.warn("AppsService.updateApp failed", { id, error: result.error.message });
+      this.log.warn("AppsService.updateApp failed", { id, error: errorMessage(result.error) });
     }
     return result;
   }
@@ -73,7 +77,7 @@ export class AppsService {
     this.log.info("AppsService.suspendApp", { id });
     const result = await this.svc.suspendApp(id);
     if (isErr(result)) {
-      this.log.warn("AppsService.suspendApp failed", { id, error: result.error.message });
+      this.log.warn("AppsService.suspendApp failed", { id, error: errorMessage(result.error) });
     }
     return result;
   }
@@ -82,7 +86,7 @@ export class AppsService {
     this.log.info("AppsService.activateApp", { id });
     const result = await this.svc.activateApp(id);
     if (isErr(result)) {
-      this.log.warn("AppsService.activateApp failed", { id, error: result.error.message });
+      this.log.warn("AppsService.activateApp failed", { id, error: errorMessage(result.error) });
     }
     return result;
   }
@@ -91,7 +95,7 @@ export class AppsService {
     this.log.info("AppsService.deleteApp", { id });
     const result = await this.svc.deleteApp(id);
     if (isErr(result)) {
-      this.log.warn("AppsService.deleteApp failed", { id, error: result.error.message });
+      this.log.warn("AppsService.deleteApp failed", { id, error: errorMessage(result.error) });
     }
     return result;
   }

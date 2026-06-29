@@ -134,6 +134,9 @@ export class AuditLogsFeatureService {
       },
     });
 
-    return exportResult;
+    if (!exportResult.ok) {
+      return err(exportResult.error as AppError);
+    }
+    return { ok: true, value: exportResult.value };
   }
 }

@@ -4,10 +4,10 @@ import {
   createLogger,
   MetricsRegistry,
   AlwaysHealthyCheck,
-  TaxonomyRegistry,
   runHealthChecks,
   makeHealthCheck,
 } from "@veritas/observability";
+import type { TaxonomyRegistry } from "@veritas/taxonomy";
 import type { HealthCheck } from "@veritas/observability";
 import { globalTaxonomyRegistry, LLMClassifier, MockClassifierLLMPort } from "@veritas/taxonomy";
 import {
@@ -72,7 +72,7 @@ export function buildContainer(config: AppConfig): Deps {
   const llmClassifier = new LLMClassifier(classifierLLMPort);
 
   // Verifier cache with a 5-minute TTL.
-  const verifierCache = new VerifierCache({ ttlMs: 5 * 60 * 1000, maxEntries: 1000 });
+  const verifierCache = new VerifierCache({ defaultTtlMs: 5 * 60 * 1000, maxSize: 1000 });
 
   const healthChecks: HealthCheck[] = [
     new AlwaysHealthyCheck("self"),

@@ -62,7 +62,7 @@ export class OnboardingService {
 
   getFlow(flowId: string): Result<OnboardingFlow, Error> {
     const flow = this.store.findById(flowId);
-    if (!flow) return err(new NotFoundError(`Flow not found: ${flowId}`));
+    if (!flow) return err(new NotFoundError({ message: `Flow not found: ${flowId}` }));
     return ok(flow);
   }
 
@@ -72,7 +72,7 @@ export class OnboardingService {
 
   startFlow(flowId: string): Result<OnboardingFlow, Error> {
     const found = this.store.findById(flowId);
-    if (!found) return err(new NotFoundError(`Flow not found: ${flowId}`));
+    if (!found) return err(new NotFoundError({ message: `Flow not found: ${flowId}` }));
     const now = new Date().toISOString();
     const updated = startFlow(found, now);
     this.store.save(updated);
@@ -82,9 +82,9 @@ export class OnboardingService {
 
   abandonFlow(flowId: string): Result<OnboardingFlow, Error> {
     const found = this.store.findById(flowId);
-    if (!found) return err(new NotFoundError(`Flow not found: ${flowId}`));
+    if (!found) return err(new NotFoundError({ message: `Flow not found: ${flowId}` }));
     if (found.status === "completed") {
-      return err(new ConflictError(`Flow ${flowId} is already completed`));
+      return err(new ConflictError({ message: `Flow ${flowId} is already completed` }));
     }
     const now = new Date().toISOString();
     const updated = abandonFlow(found, now);
@@ -95,7 +95,7 @@ export class OnboardingService {
 
   addStep(flowId: string, body: AddStepBody): Result<OnboardingStep, Error> {
     const found = this.store.findById(flowId);
-    if (!found) return err(new NotFoundError(`Flow not found: ${flowId}`));
+    if (!found) return err(new NotFoundError({ message: `Flow not found: ${flowId}` }));
     const now = new Date().toISOString();
     const step = makeStep({
       flowId,
@@ -115,9 +115,9 @@ export class OnboardingService {
 
   startStep(flowId: string, stepId: string): Result<OnboardingStep, Error> {
     const found = this.store.findById(flowId);
-    if (!found) return err(new NotFoundError(`Flow not found: ${flowId}`));
+    if (!found) return err(new NotFoundError({ message: `Flow not found: ${flowId}` }));
     const step = found.steps.find((s) => s.id === stepId);
-    if (!step) return err(new NotFoundError(`Step not found: ${stepId}`));
+    if (!step) return err(new NotFoundError({ message: `Step not found: ${stepId}` }));
     const now = new Date().toISOString();
     const updatedStep = startStep(step);
     const updatedFlow = replaceStep(found, updatedStep, now);
@@ -127,9 +127,9 @@ export class OnboardingService {
 
   completeStep(flowId: string, stepId: string): Result<OnboardingStep, Error> {
     const found = this.store.findById(flowId);
-    if (!found) return err(new NotFoundError(`Flow not found: ${flowId}`));
+    if (!found) return err(new NotFoundError({ message: `Flow not found: ${flowId}` }));
     const step = found.steps.find((s) => s.id === stepId);
-    if (!step) return err(new NotFoundError(`Step not found: ${stepId}`));
+    if (!step) return err(new NotFoundError({ message: `Step not found: ${stepId}` }));
     const now = new Date().toISOString();
     const updatedStep = completeStep(step, now);
     let updatedFlow = replaceStep(found, updatedStep, now);
@@ -141,10 +141,10 @@ export class OnboardingService {
 
   skipStep(flowId: string, stepId: string): Result<OnboardingStep, Error> {
     const found = this.store.findById(flowId);
-    if (!found) return err(new NotFoundError(`Flow not found: ${flowId}`));
+    if (!found) return err(new NotFoundError({ message: `Flow not found: ${flowId}` }));
     const step = found.steps.find((s) => s.id === stepId);
-    if (!step) return err(new NotFoundError(`Step not found: ${stepId}`));
-    if (!step.skippable) return err(new ConflictError(`Step ${stepId} is not skippable`));
+    if (!step) return err(new NotFoundError({ message: `Step not found: ${stepId}` }));
+    if (!step.skippable) return err(new ConflictError({ message: `Step ${stepId} is not skippable` }));
     const now = new Date().toISOString();
     const updatedStep = skipStep(step);
     let updatedFlow = replaceStep(found, updatedStep, now);
@@ -156,7 +156,7 @@ export class OnboardingService {
 
   getChecklist(flowId: string): Result<Checklist, Error> {
     const found = this.store.findById(flowId);
-    if (!found) return err(new NotFoundError(`Flow not found: ${flowId}`));
+    if (!found) return err(new NotFoundError({ message: `Flow not found: ${flowId}` }));
     return ok(buildChecklist(found));
   }
 }

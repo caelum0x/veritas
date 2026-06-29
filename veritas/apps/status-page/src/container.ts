@@ -14,6 +14,9 @@ import {
   type SloReportRepository,
 } from "@veritas/slo";
 import type { AppConfig } from "./config.js";
+import { StatusService } from "./status-service.js";
+import { InMemoryIncidentFeedStore } from "./incidents-feed.js";
+import type { SloSummary } from "@veritas/slo";
 
 export interface Deps {
   readonly config: AppConfig;
@@ -27,6 +30,7 @@ export interface Deps {
   readonly burnAlertRepository: BurnAlertRepository;
   readonly sloReportRepository: SloReportRepository;
   readonly sliSource: InMemorySliSource;
+  readonly statusService: StatusService;
 }
 
 export function buildContainer(config: AppConfig): Deps {
@@ -51,6 +55,32 @@ export function buildContainer(config: AppConfig): Deps {
   const sloReportRepository = new InMemorySloReportRepository();
   const sliSource = new InMemorySliSource();
 
+  const incidentFeedStore = new InMemoryIncidentFeedStore();
+
+  const statusService = new StatusService({
+    checks: [],
+    incidentStore: incidentFeedStore,
+    sloSource: {
+      listSummaries: async (): Promise<readonly SloSummary[]> => {
+        const slos = await sloRepository.findAll();
+        return slos.map((slo) => ({
+          sloId: slo.id,
+          sloName: slo.name,
+          targetRatio: slo.targetRatio,
+          currentRatio: 1,
+          errorBudgetRemaining: 1,
+          withinTarget: true,
+          evaluatedAt: new Date().toISOString(),
+        }));
+      },
+    },
+    historySource: {
+      getHistory: async () => [],
+    },
+    clock,
+    config: { version: config.version, maxIncidents: config.maxIncidents },
+  });
+
   return Object.freeze({
     config,
     logger,
@@ -63,5 +93,6 @@ export function buildContainer(config: AppConfig): Deps {
     burnAlertRepository,
     sloReportRepository,
     sliSource,
+    statusService,
   });
 }

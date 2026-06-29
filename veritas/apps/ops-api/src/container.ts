@@ -23,6 +23,7 @@ import {
   InMemoryAlertRepository,
   InMemoryModelCostRepository,
   DEFAULT_MODEL_COSTS,
+  makeModelCostConfig,
   createCostAggregator,
   createCostOptimizer,
   createCostReportBuilder,
@@ -33,12 +34,10 @@ import {
   type MetricSource,
 } from "@veritas/capacity";
 import {
-  createHealthCheck,
-  type HealthCheck,
-} from "@veritas/health-aggregation";
-import {
   createLogger,
   MetricsRegistry,
+  makeHealthCheck,
+  type HealthCheck,
   type Logger,
 } from "@veritas/observability";
 import { systemClock, type Clock } from "@veritas/core";
@@ -109,11 +108,18 @@ export function buildContainer(config: AppConfig): Deps {
   const modelCostRepo = new InMemoryModelCostRepository();
 
   for (const cfg of DEFAULT_MODEL_COSTS) {
-    modelCostRepo.save(cfg).catch(() => undefined);
+    const full = makeModelCostConfig(
+      cfg.modelId,
+      cfg.tier,
+      cfg.inputCostPerMillionTokensUsdc,
+      cfg.outputCostPerMillionTokensUsdc,
+      cfg.contextWindowTokens,
+    );
+    modelCostRepo.upsert(full).catch(() => undefined);
   }
 
-  const costAggregator = createCostAggregator(costStore);
-  const costOptimizer = createCostOptimizer({});
+  const costAggregator = createCostAggregator();
+  const costOptimizer = createCostOptimizer();
   const costReportBuilder = createCostReportBuilder();
 
   // Capacity
@@ -126,10 +132,7 @@ export function buildContainer(config: AppConfig): Deps {
 
   // Health checks
   const healthChecks: HealthCheck[] = [
-    createHealthCheck({
-      name: "self",
-      probe: async () => "healthy",
-    }),
+    makeHealthCheck("self", async () => true),
   ];
 
   return {

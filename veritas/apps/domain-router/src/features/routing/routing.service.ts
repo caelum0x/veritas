@@ -39,7 +39,7 @@ export class RoutingService {
         verifierCount: result.value.verifierIds.length,
       });
     } else {
-      this.#logger.error("claim routing failed", { claimId: claim.id, error: result.error.message });
+      this.#logger.error("claim routing failed", { claimId: claim.id, error: result.error instanceof Error ? result.error.message : String(result.error) });
     }
     return result;
   }

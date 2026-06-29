@@ -1,6 +1,7 @@
 // Reports controller: validates requests, delegates to ReportsService, sends HTTP responses.
 import type { Request, Response } from "express";
 import { isOk } from "@veritas/core";
+import type { CreateReportInput } from "@veritas/reporting";
 import {
   ListReportsQuerySchema,
   ReportIdParamSchema,
@@ -57,7 +58,7 @@ export function makeReportsController(deps: ReportsControllerDeps) {
       res.status(400).json({ success: false, error: { code: "VALIDATION_ERROR", message: parsed.error.message } });
       return;
     }
-    const result = await reportsService.createReport(parsed.data);
+    const result = await reportsService.createReport(parsed.data as unknown as CreateReportInput);
     if (!isOk(result)) {
       const status = result.error.message.includes("already exists") ? 409 : 500;
       res.status(status).json({ success: false, error: { code: "CONFLICT", message: result.error.message } });
@@ -77,7 +78,7 @@ export function makeReportsController(deps: ReportsControllerDeps) {
       res.status(400).json({ success: false, error: { code: "VALIDATION_ERROR", message: bodyParsed.error.message } });
       return;
     }
-    const result = await reportsService.updateReport(paramsParsed.data.id, bodyParsed.data);
+    const result = await reportsService.updateReport(paramsParsed.data.id, bodyParsed.data as unknown as Partial<Omit<CreateReportInput, "id" | "createdAt">>);
     if (!isOk(result)) {
       res.status(404).json({ success: false, error: { code: "NOT_FOUND", message: result.error.message } });
       return;

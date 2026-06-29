@@ -30,6 +30,11 @@ export const AppConfigSchema = z.object({
 
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 
+// Domain-router-specific aliases used by bootstrap/router/plan/dispatch.
+export const DomainRouterConfigSchema = AppConfigSchema;
+export type DomainRouterConfig = AppConfig;
+export const defaultConfig: DomainRouterConfig = AppConfigSchema.parse({});
+
 export function loadConfig(): AppConfig {
   return AppConfigSchema.parse({
     port: process.env["PORT"],

@@ -102,6 +102,7 @@ export class A2AController {
       } else {
         const err = result.error;
         const status =
+          err !== null && typeof err === "object" &&
           "statusCode" in err && typeof (err as { statusCode: unknown }).statusCode === "number"
             ? (err as { statusCode: number }).statusCode
             : 502;

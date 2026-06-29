@@ -25,7 +25,7 @@ export function requestContextMiddleware(
   next: NextFunction,
 ): void {
   const headers = req.headers as Record<string, string | string[] | undefined>;
-  const correlation: CorrelationContext = extractCorrelationHeaders(headers);
+  const correlation: Partial<CorrelationContext> = extractCorrelationHeaders(headers);
   const requestId = newRequestId();
   const correlationId = correlation.correlationId ?? newCorrelationId();
 
@@ -45,8 +45,9 @@ export function getRequestContext(): Partial<StatusPageRequestContext> {
 }
 
 export function withExtendedContext(
-  additions: Record<string, unknown>,
+  additions: Partial<RequestContext>,
   fn: () => void,
 ): void {
-  extendContext(additions, fn);
+  extendContext(additions);
+  fn();
 }

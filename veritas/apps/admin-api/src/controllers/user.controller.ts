@@ -33,7 +33,7 @@ export interface UserService {
 
 export function makeUserController(userService: UserService) {
   async function listUsers(
-    req: Request & { validated?: ListUsersQuery },
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -54,7 +54,7 @@ export function makeUserController(userService: UserService) {
   }
 
   async function getUser(
-    req: Request & { validated?: UserIdParam },
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -74,7 +74,7 @@ export function makeUserController(userService: UserService) {
   }
 
   async function updateUser(
-    req: Request & { validated?: UpdateUserBody },
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -118,7 +118,7 @@ export function makeUserController(userService: UserService) {
   }
 
   async function assignRole(
-    req: Request & { validated?: AssignRoleInput },
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -137,7 +137,7 @@ export function makeUserController(userService: UserService) {
   }
 
   async function revokeRole(
-    req: Request & { validated?: RevokeRoleInput },
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
