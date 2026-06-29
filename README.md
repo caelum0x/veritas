@@ -203,6 +203,21 @@ npm run agent           # apps/cap-agent — local simulation (offline, no real 
 `CROO_*` placeholders in `.env.example` satisfy config validation. List a service on the
 CROO Agent Store first so the agent has something to receive orders against.
 
+### Hire Veritas from another agent (the A2A demo)
+
+In a second terminal, with the provider running and a listed service id:
+
+```bash
+CROO_TARGET_SERVICE_ID=<service id> \
+CROO_BUYER_API_KEY=<a DIFFERENT agent's SDK-Key> \
+npm run hire:live -- "The Eiffel Tower is in Paris." "Bitcoin launched in 2009."
+```
+
+`examples/src/croo-hire.ts` is a real buyer (`@croo-network/sdk`): it opens a
+negotiation, pays USDC into escrow when the provider accepts, and prints the verified
+report on completion — the exact pattern any dependent agent uses. Use a *different*
+agent's key (not the provider's) so it counts as a unique counterparty.
+
 ### Quality gates
 
 ```bash
