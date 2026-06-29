@@ -83,12 +83,16 @@ async function onOrderPaid(orderId: string): Promise<void> {
   }
 
   const report = result.value.report; // already carries schema: "veritas.report.v1"
-  const deliverableSchema = JSON.stringify(report);
-  await client.deliverOrder(orderId, {
-    deliverableType: DeliverableType.Schema,
-    deliverableSchema,
-  });
-  log("delivered order:", orderId, `(trustScore ${report.trustScore}, ${result.value.totalTokensUsed} tokens)`);
+  const payload = JSON.stringify(report);
+  // The deliverable type MUST match the listed service's configured type. The
+  // SDK supports "schema" (default, richest) and "text"; set VERITAS_DELIVERABLE_TYPE=text
+  // if the service was created as a text service.
+  const asText = (process.env["VERITAS_DELIVERABLE_TYPE"] ?? "schema").toLowerCase() === "text";
+  const deliverReq = asText
+    ? { deliverableType: DeliverableType.Text, deliverableText: payload }
+    : { deliverableType: DeliverableType.Schema, deliverableSchema: payload };
+  await client.deliverOrder(orderId, deliverReq);
+  log("delivered order:", orderId, `(${asText ? "text" : "schema"}, trustScore ${report.trustScore}, ${result.value.totalTokensUsed} tokens)`);
 }
 
 /** Wrap an async event handler so a failure in one job never kills the stream. */
