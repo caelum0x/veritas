@@ -20,7 +20,7 @@ export {
 
 // Metrics
 export type { Counter, Gauge, Histogram, Labels, Metric, MetricKind, MetricDescriptor, MetricSample } from "./metrics/metric.js";
-export { MetricsRegistry, globalRegistry } from "./metrics/registry.js";
+export { MetricsRegistry, globalRegistry, DEFAULT_HISTOGRAM_BUCKETS } from "./metrics/registry.js";
 export { startTimer, timeAsync, timeSync, createTimer, type Timer } from "./metrics/timers.js";
 
 // Tracing

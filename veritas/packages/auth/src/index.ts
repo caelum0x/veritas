@@ -25,7 +25,7 @@ export { isApiKeyPrincipal, isSessionPrincipal, isAgentPrincipal } from "./princ
 
 export type { Authenticator, AuthContext } from "./authenticator.js";
 
-export type { ApiKeyStore } from "./api-key-authenticator.js";
+export type { ApiKeyStore, StoredApiKey } from "./api-key-authenticator.js";
 export { ApiKeyAuthenticator } from "./api-key-authenticator.js";
 
 export type { VerifySignatureOptions } from "./signature.js";

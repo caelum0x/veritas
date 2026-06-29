@@ -32,7 +32,7 @@ export type {
   VerdictDistribution,
   AnalyticsReportSummary,
 } from "./report.js";
-export { makeAnalyticsReport, computeMetricSeries } from "./report.js";
+export { makeAnalyticsReport, computeMetricSeries, AnalyticsReportPeriodSchema } from "./report.js";
 
 export type { DashboardData, DashboardWidget, DashboardOverview, DashboardAssemblerDeps } from "./dashboard.js";
 export { assembleDashboard } from "./dashboard.js";

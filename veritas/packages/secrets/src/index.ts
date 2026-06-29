@@ -68,3 +68,6 @@ export type {
   SetSecretOptions,
   SecretsManager,
 } from "./manager.js";
+
+export { EnvSecretsManager } from "./env-adapter.js";
+export type { EnvAdapterOptions } from "./env-adapter.js";

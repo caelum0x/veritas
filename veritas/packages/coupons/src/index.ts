@@ -21,3 +21,4 @@ export * from "./errors.js";
 export * from "./limit.js";
 export * from "./rule.js";
 export * from "./validation.js";
+export { type CouponStore, InMemoryCouponStore } from "./store.js";
